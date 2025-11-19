@@ -32,49 +32,51 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* HERO SECTION */}
-      <section
-        className="max-w-7xl mx-auto px-4 lg:px-8 
-    flex flex-col lg:flex-row items-center py-16 gap-12"
+    <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16">
+  <div
+    className="grid grid-cols-1 lg:grid-cols-2 items-center"
+  >
+    {/* LEFT TEXT SECTION */}
+    <div className="text-center lg:text-left">
+      <h1 className="text-4xl md:text-6xl font-extrabold text-slate-800 leading-tight">
+        Your Ideal Home <br /> Awaits You
+      </h1>
+
+      <p className="text-gray-500 mt-5 text-sm md:text-base max-w-md mx-auto lg:mx-0">
+        Browse premium homes, apartments and exclusive listings from
+        verified property owners.
+      </p>
+
+      <Link
+        to="/search"
+        className="inline-block mt-7 px-7 py-3 bg-slate-800 text-white rounded-xl font-medium shadow-md hover:bg-slate-700 transition"
       >
-        {/* TEXT SECTION */}
-        <div className="flex-1 order-1 lg:order-none text-center lg:text-left">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-slate-800 leading-tight">
-            Your Ideal Home <br /> Awaits You
-          </h1>
+        Start Exploring
+      </Link>
+    </div>
 
-          <p className="text-gray-500 mt-5 text-sm md:text-base max-w-md mx-auto lg:mx-0">
-            Browse premium homes, apartments and exclusive listings from
-            verified property owners.
-          </p>
+    {/* RIGHT IMAGE SLIDER */}
+    <div>
+      <Swiper
+        navigation
+        pagination={{ clickable: true }}
+        modules={[Navigation, Pagination]}
+        className="rounded-2xl overflow-hidden shadow-lg w-full"
+      >
+        {offerListings.map((listing) => (
+          <SwiperSlide key={listing._id}>
+            <img
+              src={listing.imageUrls[0]}
+              className="h-[300px] md:h-[380px] w-full object-cover"
+              alt="listing"
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  </div>
+</section>
 
-          <Link
-            to="/search"
-            className="inline-block mt-7 px-7 py-3 bg-slate-800 text-white rounded-xl font-medium shadow-md hover:bg-slate-700 transition"
-          >
-            Start Exploring
-          </Link>
-        </div>
-
-        {/* IMAGE SLIDER */}
-        <div className="flex-1 order-2 lg:order-none w-full">
-          <Swiper
-            navigation
-            pagination={{ clickable: true }}
-            modules={[Navigation, Pagination]}
-            className="rounded-2xl overflow-hidden shadow-lg w-full"
-          >
-            {offerListings.map((listing) => (
-              <SwiperSlide key={listing._id}>
-                <img
-                  src={listing.imageUrls[0]}
-                  className="h-[300px] md:h-[380px] w-full object-cover"
-                  alt="listing"
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      </section>
 
       {/* LISTING SECTIONS */}
       <section className="max-w-7xl mx-auto px-4 lg:px-6 py-12 space-y-16">
