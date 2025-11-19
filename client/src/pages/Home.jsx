@@ -1,134 +1,138 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
-import SwiperCore from 'swiper';
-import 'swiper/css/bundle';
-import ListingItem from '../components/ListingItem';
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css/bundle";
+import ListingItem from "../components/ListingItem";
 
 export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
-  SwiperCore.use([Navigation]);
-  console.log(offerListings);
-  useEffect(() => {
-    const fetchOfferListings = async () => {
-      try {
-        const res = await fetch('/api/listing/get?offer=true&limit=4');
-        const data = await res.json();
-        setOfferListings(data);
-        fetchRentListings();
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    const fetchRentListings = async () => {
-      try {
-        const res = await fetch('/api/listing/get?type=rent&limit=4');
-        const data = await res.json();
-        setRentListings(data);
-        fetchSaleListings();
-      } catch (error) {
-        console.log(error);
-      }
-    };
 
-    const fetchSaleListings = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/listing/get?type=sale&limit=4');
-        const data = await res.json();
-        setSaleListings(data);
+        const offer = await fetch("/api/listing/get?offer=true&limit=4");
+        setOfferListings(await offer.json());
+
+        const rent = await fetch("/api/listing/get?type=rent&limit=4");
+        setRentListings(await rent.json());
+
+        const sale = await fetch("/api/listing/get?type=sale&limit=4");
+        setSaleListings(await sale.json());
       } catch (error) {
-        log(error);
+        console.log(error);
       }
     };
-    fetchOfferListings();
+    fetchData();
   }, []);
+
+  return (
+    <div className="bg-white">
+      {/* HERO SECTION */}
+      <section
+        className="max-w-7xl mx-auto px-4 lg:px-8 
+    flex flex-col lg:flex-row items-center py-16 gap-12"
+      >
+        {/* TEXT SECTION */}
+        <div className="flex-1 order-1 lg:order-none text-center lg:text-left">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-slate-800 leading-tight">
+            Your Ideal Home <br /> Awaits You
+          </h1>
+
+          <p className="text-gray-500 mt-5 text-sm md:text-base max-w-md mx-auto lg:mx-0">
+            Browse premium homes, apartments and exclusive listings from
+            verified property owners.
+          </p>
+
+          <Link
+            to="/search"
+            className="inline-block mt-7 px-7 py-3 bg-slate-800 text-white rounded-xl font-medium shadow-md hover:bg-slate-700 transition"
+          >
+            Start Exploring
+          </Link>
+        </div>
+
+        {/* IMAGE SLIDER */}
+        <div className="flex-1 order-2 lg:order-none w-full">
+          <Swiper
+            navigation
+            pagination={{ clickable: true }}
+            modules={[Navigation, Pagination]}
+            className="rounded-2xl overflow-hidden shadow-lg w-full"
+          >
+            {offerListings.map((listing) => (
+              <SwiperSlide key={listing._id}>
+                <img
+                  src={listing.imageUrls[0]}
+                  className="h-[300px] md:h-[380px] w-full object-cover"
+                  alt="listing"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </section>
+
+      {/* LISTING SECTIONS */}
+      <section className="max-w-7xl mx-auto px-4 lg:px-6 py-12 space-y-16">
+        {offerListings.length > 0 && (
+          <ListingSection
+            title="🔥 Hot Property Deals"
+            link="/search?offer=true"
+            data={offerListings}
+          />
+        )}
+
+        {rentListings.length > 0 && (
+          <ListingSection
+            title="🏡 Homes for Rent"
+            link="/search?type=rent"
+            data={rentListings}
+          />
+        )}
+
+        {saleListings.length > 0 && (
+          <ListingSection
+            title="🏘️ Properties for Sale"
+            link="/search?type=sale"
+            data={saleListings}
+          />
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* REUSABLE SECTION COMPONENT */
+function ListingSection({ title, link, data }) {
   return (
     <div>
-      {/* top */}
-      <div className='flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto'>
-        <h1 className='text-slate-700 font-bold text-3xl lg:text-6xl'>
-          Find your next <span className='text-slate-500'>perfect</span>
-          <br />
-          place with ease
-        </h1>
-        <div className='text-gray-400 text-xs sm:text-sm'>
-          Sahand Estate is the best place to find your next perfect place to
-          live.
-          <br />
-          We have a wide range of properties for you to choose from.
-        </div>
-        <Link
-          to={'/search'}
-          className='text-xs sm:text-sm text-blue-800 font-bold hover:underline'
-        >
-          Let's get started...
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
+          {title}
+        </h2>
+
+        <Link to={link} className="text-blue-700 text-sm hover:underline">
+          View All →
         </Link>
       </div>
 
-      {/* swiper */}
-      <Swiper navigation>
-        {offerListings &&
-          offerListings.length > 0 &&
-          offerListings.map((listing) => (
-            <SwiperSlide>
-              <div
-                style={{
-                  background: `url(${listing.imageUrls[0]}) center no-repeat`,
-                  backgroundSize: 'cover',
-                }}
-                className='h-[500px]'
-                key={listing._id}
-              ></div>
-            </SwiperSlide>
-          ))}
-      </Swiper>
-
-      {/* listing results for offer, sale and rent */}
-
-      <div className='max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10'>
-        {offerListings && offerListings.length > 0 && (
-          <div className=''>
-            <div className='my-3'>
-              <h2 className='text-2xl font-semibold text-slate-600'>Recent offers</h2>
-              <Link className='text-sm text-blue-800 hover:underline' to={'/search?offer=true'}>Show more offers</Link>
-            </div>
-            <div className='flex flex-wrap gap-4'>
-              {offerListings.map((listing) => (
-                <ListingItem listing={listing} key={listing._id} />
-              ))}
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 place-items-stretch">
+        {data.map((listing) => (
+          <div key={listing._id} className="w-full flex">
+            <ListingItem listing={listing} />
           </div>
-        )}
-        {rentListings && rentListings.length > 0 && (
-          <div className=''>
-            <div className='my-3'>
-              <h2 className='text-2xl font-semibold text-slate-600'>Recent places for rent</h2>
-              <Link className='text-sm text-blue-800 hover:underline' to={'/search?type=rent'}>Show more places for rent</Link>
-            </div>
-            <div className='flex flex-wrap gap-4'>
-              {rentListings.map((listing) => (
-                <ListingItem listing={listing} key={listing._id} />
-              ))}
-            </div>
-          </div>
-        )}
-        {saleListings && saleListings.length > 0 && (
-          <div className=''>
-            <div className='my-3'>
-              <h2 className='text-2xl font-semibold text-slate-600'>Recent places for sale</h2>
-              <Link className='text-sm text-blue-800 hover:underline' to={'/search?type=sale'}>Show more places for sale</Link>
-            </div>
-            <div className='flex flex-wrap gap-4'>
-              {saleListings.map((listing) => (
-                <ListingItem listing={listing} key={listing._id} />
-              ))}
-            </div>
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );
 }
+
+ListingSection.propTypes = {
+  title: PropTypes.string.isRequired,
+  link: PropTypes.string.isRequired,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+};

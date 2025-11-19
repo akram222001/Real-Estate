@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MdLocationOn } from 'react-icons/md';
+import PropTypes from 'prop-types';
 
 export default function ListingItem({ listing }) {
   return (
@@ -7,7 +8,7 @@ export default function ListingItem({ listing }) {
       <Link to={`/listing/${listing._id}`}>
         <img
           src={
-            listing.imageUrls[0] ||
+            listing.imageUrls?.[0] ||
             'https://53.fs1.hubspotusercontent-na1.net/hub/53/hubfs/Sales_Blog/real-estate-business-compressor.jpg?width=595&height=400&name=real-estate-business-compressor.jpg'
           }
           alt='listing cover'
@@ -28,7 +29,7 @@ export default function ListingItem({ listing }) {
           </p>
           <p className='text-slate-500 mt-2 font-semibold '>
             $
-            {listing.offer
+            {listing.offer && listing.discountPrice
               ? listing.discountPrice.toLocaleString('en-US')
               : listing.regularPrice.toLocaleString('en-US')}
             {listing.type === 'rent' && ' / month'}
@@ -50,3 +51,19 @@ export default function ListingItem({ listing }) {
     </div>
   );
 }
+
+ListingItem.propTypes = {
+  listing: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    address: PropTypes.string.isRequired,
+    regularPrice: PropTypes.number.isRequired,
+    discountPrice: PropTypes.number,
+    type: PropTypes.oneOf(['rent', 'sale']).isRequired,
+    bedrooms: PropTypes.number.isRequired,
+    bathrooms: PropTypes.number.isRequired,
+    imageUrls: PropTypes.arrayOf(PropTypes.string).isRequired,
+    offer: PropTypes.bool,
+  }).isRequired,
+};
