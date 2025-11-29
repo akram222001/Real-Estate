@@ -43,7 +43,7 @@ export default function SignIn() {
     }
   };
   return (
-    <div className='p-3 max-w-lg mx-auto'>
+     <div className="p-5 max-w-sm mx-auto bg-white mt-10 shadow-md">
       <h1 className='text-3xl text-center font-semibold my-7'>Sign In</h1>
       <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <input
@@ -63,18 +63,23 @@ export default function SignIn() {
 
         <button
           disabled={loading}
-          className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
+          className='bg-slate-700 text-white p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
         >
           {loading ? 'Loading...' : 'Sign In'}
         </button>
+         <div className='flex gap-2 justify-center items-center'>
+          <p>Dont have an account?</p>
+          <Link to={'/sign-up'}>
+            <span className='text-blue-700'>SignUp</span>
+          </Link>
+        </div>
+        <div className='flex items-center gap-2'>
+          <div className='flex-1 h-px bg-gray-300'></div>
+          <span className='text-gray-500 text-sm'>OR</span>
+          <div className='flex-1 h-px bg-gray-300'></div>
+        </div>
         <OAuth/>
       </form>
-      <div className='flex gap-2 mt-5'>
-        <p>Dont have an account?</p>
-        <Link to={'/sign-up'}>
-          <span className='text-blue-700'>Sign up</span>
-        </Link>
-      </div>
       {error && <p className='text-red-500 mt-5'>{error}</p>}
     </div>
   );

@@ -2,12 +2,29 @@ import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
+import cloudinary from '../utils/cloudinary.js';
 
 export const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
-  const hashedPassword = bcryptjs.hashSync(password, 10);
-  const newUser = new User({ username, email, password: hashedPassword });
   try {
+    const { username, email, password } = req.body;
+    let avatarUrl = "";
+    // 🔹 Agar image file aayi ho toh Cloudinary pe upload
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "users",
+      });
+      avatarUrl = result.secure_url;   // 🔥 yeh DB me jayega
+    }
+
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+      avatar: avatarUrl,   // 🔥 save in DB
+    });
+
     await newUser.save();
     res.status(201).json('User created successfully!');
   } catch (error) {
