@@ -1,6 +1,24 @@
 import Listing from '../models/listing.model.js';
 import { errorHandler } from '../utils/error.js';
 
+// NEW FUNCTION - For image uploads
+export const uploadImages = async (req, res, next) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return next(errorHandler(400, 'No images uploaded'));
+    }
+    
+    const imageUrls = req.files.map(file => file.path);
+    res.status(200).json({ 
+      success: true, 
+      imageUrls 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Existing functions remain the same
 export const createListing = async (req, res, next) => {
   try {
     const listing = await Listing.create(req.body);

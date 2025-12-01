@@ -4,7 +4,7 @@ import upload from "../utils/multer.js";
 
 const router = express.Router();
 
-router.post("/signup", upload.single("avatar"), signup);  // ⬅️ avatar upload
+router.post("/signup", upload.single("avatar"), signup); 
 router.post("/signin", signin);
 router.post('/google', google);
 router.get('/signout', signOut)

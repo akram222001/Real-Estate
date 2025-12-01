@@ -32,6 +32,7 @@ export default function Listing() {
       try {
         setLoading(true);
         const res = await fetch(`/api/listing/get/${params.listingId}`);
+        console.log("res list",res)
         const data = await res.json();
         if (data.success === false) {
           setError(true);
