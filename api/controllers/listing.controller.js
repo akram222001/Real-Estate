@@ -1,5 +1,7 @@
 import Listing from '../models/listing.model.js';
 import { errorHandler } from '../utils/error.js';
+import requestIp from "request-ip";
+
 
 // NEW FUNCTION - For image uploads
 export const uploadImages = async (req, res, next) => {
@@ -68,15 +70,41 @@ export const updateListing = async (req, res, next) => {
   }
 };
 
-export const getListing = async (req, res, next) => {
+// export const getListing = async (req, res, next) => {
+//   try {
+//     const listing = await Listing.findById(req.params.id);
+//     if (!listing) {
+//       return next(errorHandler(404, 'Listing not found!'));
+//     }
+//      // 🔥 Increase views (simple method)
+//     listing.views = (listing.views || 0) + 1;
+//     await listing.save();
+//     res.status(200).json(listing);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+export const getListing = async (req, res) => {
   try {
+    const clientIp = requestIp.getClientIp(req);
+
     const listing = await Listing.findById(req.params.id);
-    if (!listing) {
-      return next(errorHandler(404, 'Listing not found!'));
+
+    if (!listing) return res.status(404).json({ success: false });
+
+    const viewedAlready = listing.viewLogs?.some(
+      log => log.ip === clientIp && Date.now() - log.date < 24 * 60 * 60 * 1000
+    );
+
+    if (!viewedAlready) {
+      listing.views++;
+      listing.viewLogs.push({ ip: clientIp, date: Date.now() });
+      await listing.save();
     }
+
     res.status(200).json(listing);
   } catch (error) {
-    next(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
