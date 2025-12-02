@@ -1,0 +1,69 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# production build
+/dist
+/build
+/.next
+/out
+
+# environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# editor folders
+.vscode/
+.idea/
+
+# system files
+.DS_Store
+Thumbs.db
+
+# cache
+/.parcel-cache
+/.cache
+/.turbo
+/.vite
+/.nuxt
+/.svelte-kit
+
+# coverage
+/coverage
+
+# miscellaneous
+*.pem
+*.orig
+
+# Storybook build
+/storybook-static/
+
+# local firebase emulators
+.firebase/
+.firebaserc
+
+# docker
+/.docker
+docker-compose.override.yml
+
+# lint cache
+.eslintcache
+
+# typescript
+*.tsbuildinfo
+
+# log files
+*.log
+
+# recoil persist
+recoilPersist

@@ -5,11 +5,21 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css/bundle";
 import ListingItem from "../components/ListingItem";
+import { useOutletContext } from "react-router-dom";
 
 export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
+  const { setFooterData } = useOutletContext();
+
+  useEffect(() => {
+    setFooterData([
+      { title: "🔥 Hot Property Deals", link: "/search?offer=true" },
+      { title: "🏡 Homes for Rent", link: "/search?type=rent" },
+      { title: "🏘️ Properties for Sale", link: "/search?type=sale" },
+    ]);
+  }, []); 
 
   useEffect(() => {
     const fetchData = async () => {

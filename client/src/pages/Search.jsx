@@ -129,7 +129,11 @@ export default function Search() {
   };
   return (
     <div className="flex flex-col md:flex-row">
-      <div className="p-5 border-b md:border-r md:min-h-screen md:w-[240px] bg-white shadow-sm">
+      {/* <div className="p-5 border-b md:border-r md:min-h-screen md:w-[240px] bg-white shadow-sm"> */}
+      <div
+        className="p-5 border-b md:border-r md:w-[240px] bg-white shadow-sm
+     md:sticky md:top-0 h-screen overflow-y-auto"
+      >
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Type Filter */}
           <div>
