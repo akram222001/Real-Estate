@@ -20,7 +20,7 @@ import { API_BASE } from "../../config";
 const getAuthToken = () => {
   // 1. Check Redux persist state
   try {
-    const state = JSON.parse(localStorage.getItem('persist:root') || '{}');
+    const state = JSON.parse(localStorage.getItem("persist:root") || "{}");
     if (state?.user) {
       const userState = JSON.parse(state.user);
       if (userState.currentUser?.token) {
@@ -28,53 +28,53 @@ const getAuthToken = () => {
       }
     }
   } catch (error) {
-    console.error('Error parsing Redux state:', error);
+    console.error("Error parsing Redux state:", error);
   }
-  
+
   // 2. Check localStorage
-  const lsToken = localStorage.getItem('token');
+  const lsToken = localStorage.getItem("token");
   if (lsToken) return lsToken;
-  
+
   // 3. Check cookies
   const cookieToken = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('access_token='))
-    ?.split('=')[1];
-  
+    .split("; ")
+    .find((row) => row.startsWith("access_token="))
+    ?.split("=")[1];
+
   return cookieToken || null;
 };
 
 // Make authenticated fetch request
 const authFetch = async (url, options = {}) => {
   const token = getAuthToken();
-  
+
   if (!token) {
     throw new Error("Authentication required. Please login again.");
   }
-  
+
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
     ...options.headers,
   };
-  
+
   // Remove credentials temporarily to avoid CORS issues
   const config = {
     ...options,
     headers,
     // credentials: 'include', // Temporarily disabled for CORS
   };
-  
+
   console.log(`📡 API Call: ${url}`);
-  
+
   try {
     const response = await fetch(url, config);
-    
+
     if (response.status === 401) {
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
       throw new Error("Session expired. Please login again.");
     }
-    
+
     return response;
   } catch (error) {
     console.error(`❌ API Error:`, error);
@@ -85,25 +85,25 @@ const authFetch = async (url, options = {}) => {
 // Make authenticated FormData request (for file uploads)
 const authFetchFormData = async (url, formData) => {
   const token = getAuthToken();
-  
+
   if (!token) {
     throw new Error("Authentication required. Please login again.");
   }
-  
+
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
       // No Content-Type for FormData (browser sets it automatically)
     },
     body: formData,
   });
-  
+
   if (response.status === 401) {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     throw new Error("Session expired. Please login again.");
   }
-  
+
   return response;
 };
 
@@ -155,7 +155,6 @@ export default function Profile() {
   const [listingLoading, setListingLoading] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
 
-  // ==================== USE EFFECTS ====================
 
   useEffect(() => {
     if (file) {
@@ -167,7 +166,9 @@ export default function Profile() {
     if (editingListing) {
       const fetchListing = async () => {
         try {
-          const res = await fetch(`${API_BASE}/api/listing/get/${editingListing}`);
+          const res = await fetch(
+            `${API_BASE}/api/listing/get/${editingListing}`
+          );
           const data = await res.json();
           if (data.success === false) {
             console.log(data.message);
@@ -195,13 +196,13 @@ export default function Profile() {
       );
 
       const data = await res.json();
-      
+
       if (data.success === false) {
         alert(data.message);
         return;
       }
 
-      setFormData(prev => ({ ...prev, avatar: data.avatar }));
+      setFormData((prev) => ({ ...prev, avatar: data.avatar }));
       dispatch(updateUserSuccess(data));
       setFilePerc(100);
       alert("✅ Photo uploaded successfully!");
@@ -217,19 +218,22 @@ export default function Profile() {
     e.preventDefault();
     try {
       dispatch(updateUserStart());
-      
-      const res = await authFetch(`${API_BASE}/api/user/update/${currentUser._id}`, {
-        method: "POST",
-        body: JSON.stringify(formData),
-      });
+
+      const res = await authFetch(
+        `${API_BASE}/api/user/update/${currentUser._id}`,
+        {
+          method: "POST",
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await res.json();
-      
+
       if (data.success === false) {
         dispatch(updateUserFailure(data.message));
         return;
       }
-      
+
       dispatch(updateUserSuccess(data));
       setUpdateSuccess(true);
       alert("✅ Profile updated successfully!");
@@ -245,20 +249,23 @@ export default function Profile() {
 
     try {
       dispatch(deleteUserStart());
-      
-      const res = await authFetch(`${API_BASE}/api/user/delete/${currentUser._id}`, {
-        method: "DELETE",
-      });
-      
+
+      const res = await authFetch(
+        `${API_BASE}/api/user/delete/${currentUser._id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       const data = await res.json();
 
       if (data.success === false) {
         dispatch(deleteUserFailure(data.message));
         return;
       }
-      
+
       dispatch(deleteUserSuccess(data));
-      navigate('/');
+      navigate("/");
     } catch (err) {
       dispatch(deleteUserFailure(err.message));
     }
@@ -266,20 +273,20 @@ export default function Profile() {
 
   const handleSignOut = async () => {
     dispatch(signOutUserStart());
-    
+
     try {
       const token = getAuthToken();
       if (token) {
         await fetch(`${API_BASE}/api/auth/signout`, {
-          headers: { "Authorization": `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
       }
     } catch (error) {
       console.log("Signout error:", error);
     }
-    
+
     dispatch(deleteUserSuccess());
-    navigate('/');
+    navigate("/");
   };
 
   // ==================== LISTING FUNCTIONS ====================
@@ -287,20 +294,25 @@ export default function Profile() {
   const handleListingDelete = async (listingId) => {
     if (!window.confirm("Are you sure you want to delete your List Item?"))
       return;
-    
+
     try {
-      const res = await authFetch(`${API_BASE}/api/listing/delete/${listingId}`, {
-        method: "DELETE",
-      });
-      
+      const res = await authFetch(
+        `${API_BASE}/api/listing/delete/${listingId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       const data = await res.json();
-      
+
       if (data.success === false) {
         alert("Delete failed: " + data.message);
         return;
       }
 
-      setUserListings(prev => prev.filter(listing => listing._id !== listingId));
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
       alert("✅ Listing deleted successfully!");
     } catch (error) {
       alert("Delete failed: " + error.message);
@@ -310,8 +322,10 @@ export default function Profile() {
   const handleShowListings = async () => {
     try {
       setShowListingsError(false);
-      
-      const res = await authFetch(`${API_BASE}/api/user/listings/${currentUser._id}`);
+
+      const res = await authFetch(
+        `${API_BASE}/api/user/listings/${currentUser._id}`
+      );
       const data = await res.json();
 
       if (data.success === false) {
@@ -322,7 +336,7 @@ export default function Profile() {
 
       setUserListings(data);
     } catch (error) {
-      console.error('❌ Listings fetch error:', error);
+      console.error("❌ Listings fetch error:", error);
       setShowListingsError(true);
       alert("Failed to load listings: " + error.message);
     }
@@ -348,20 +362,19 @@ export default function Profile() {
         );
 
         const data = await res.json();
-        
+
         if (data.success === false) {
           throw new Error(data.message || "Image upload failed");
         }
 
         const urls = data.imageUrls || [];
-        setListingFormData(prev => ({
+        setListingFormData((prev) => ({
           ...prev,
           imageUrls: prev.imageUrls.concat(urls),
         }));
         setImageUploadError(false);
-        
       } catch (error) {
-        console.error('❌ Image upload error:', error);
+        console.error("❌ Image upload error:", error);
         setImageUploadError(error.message);
       } finally {
         setUploading(false);
@@ -373,7 +386,7 @@ export default function Profile() {
   };
 
   const handleRemoveImage = (index) => {
-    setListingFormData(prev => ({
+    setListingFormData((prev) => ({
       ...prev,
       imageUrls: prev.imageUrls.filter((_, i) => i !== index),
     }));
@@ -383,19 +396,17 @@ export default function Profile() {
     const { id, type, value, checked, name } = e.target;
 
     if (name === "type" && (value === "sale" || value === "rent")) {
-      setListingFormData(prev => ({ ...prev, type: value }));
-    }
-    else if (id === "parking" || id === "furnished" || id === "offer") {
-      setListingFormData(prev => ({ ...prev, [id]: checked }));
-    }
-    else if (
+      setListingFormData((prev) => ({ ...prev, type: value }));
+    } else if (id === "parking" || id === "furnished" || id === "offer") {
+      setListingFormData((prev) => ({ ...prev, [id]: checked }));
+    } else if (
       type === "number" ||
       type === "text" ||
       type === "textarea" ||
       type === "select-one" ||
       e.target.tagName === "SELECT"
     ) {
-      setListingFormData(prev => ({ ...prev, [id]: value }));
+      setListingFormData((prev) => ({ ...prev, [id]: value }));
     }
   };
 
@@ -407,7 +418,9 @@ export default function Profile() {
         return setListingError("You must upload at least one image");
       }
       if (+listingFormData.regularPrice < +listingFormData.discountPrice) {
-        return setListingError("Discount price must be lower than regular price");
+        return setListingError(
+          "Discount price must be lower than regular price"
+        );
       }
 
       setListingLoading(true);
@@ -416,7 +429,7 @@ export default function Profile() {
       const url = editingListing
         ? `${API_BASE}/api/listing/update/${editingListing}`
         : `${API_BASE}/api/listing/create`;
-      
+
       const method = "POST"; // Both create and update use POST
 
       const res = await authFetch(url, {
@@ -444,7 +457,7 @@ export default function Profile() {
         }
       }
     } catch (error) {
-      console.error('❌ Listing submit error:', error);
+      console.error("❌ Listing submit error:", error);
       setListingError(error.message);
       setListingLoading(false);
       alert("Failed to save listing: " + error.message);
@@ -486,9 +499,8 @@ export default function Profile() {
     setActiveTab("create-listing");
   };
 
-
   return (
-    <div className="max-w-6xl px-6 mx-auto py-8 flex md:flex-row flex-col gap-4">
+    <div className="max-w-6xl md:px-6 px-2 mx-auto py-8 flex md:flex-row flex-col gap-4">
       <aside className="md:w-64 bg-white shadow-lg rounded-xl p-6 h-max top-10">
         <div className="text-center mb-6">
           <img
@@ -546,7 +558,7 @@ export default function Profile() {
         </ul>
       </aside>
 
-      <div className="flex-1 bg-white shadow-lg rounded-xl p-8">
+      <div className="flex-1 bg-white shadow-lg rounded-xl md:p-8 p-6">
         {activeTab === "profile" && (
           <>
             <h1 className="text-2xl font-bold mb-6">Profile</h1>
@@ -562,7 +574,7 @@ export default function Profile() {
               <img
                 onClick={() => fileRef.current.click()}
                 src={formData.avatar || currentUser.avatar}
-                className="h-24 w-24 rounded-full cursor-pointer object-cover"
+                className="md:h-24 md:w-24 h-20 w-20 rounded-full cursor-pointer object-cover"
                 alt="profile"
               />
 
@@ -674,235 +686,8 @@ export default function Profile() {
           </>
         )}
 
-        {/* {activeTab === "create-listing" && (
-          <>
-            <h1 className="text-2xl font-bold mb-6">
-              {editingListing ? 'Update Listing' : 'Create a Listing'}
-            </h1>
-            <form onSubmit={handleListingSubmit} className='flex flex-col sm:flex-row gap-4'>
-              <div className='flex flex-col gap-4 flex-1'>
-                <input
-                  type='text'
-                  placeholder='Name'
-                  className='border p-3 rounded-lg'
-                  id='name'
-                  maxLength='62'
-                  minLength='10'
-                  required
-                  onChange={handleListingChange}
-                  value={listingFormData.name}
-                />
-                <textarea
-                  type='text'
-                  placeholder='Description'
-                  className='border p-3 rounded-lg'
-                  id='description'
-                  required
-                  onChange={handleListingChange}
-                  value={listingFormData.description}
-                />
-                <input
-                  type='text'
-                  placeholder='Address'
-                  className='border p-3 rounded-lg'
-                  id='address'
-                  required
-                  onChange={handleListingChange}
-                  value={listingFormData.address}
-                />
-                <div className='flex gap-6 flex-wrap'>
-                  <div className='flex gap-2'>
-                    <input
-                      type='checkbox'
-                      id='sale'
-                      className='w-5'
-                      onChange={handleListingChange}
-                      checked={listingFormData.type === 'sale'}
-                    />
-                    <span>Sell</span>
-                  </div>
-                  <div className='flex gap-2'>
-                    <input
-                      type='checkbox'
-                      id='rent'
-                      className='w-5'
-                      onChange={handleListingChange}
-                      checked={listingFormData.type === 'rent'}
-                    />
-                    <span>Rent</span>
-                  </div>
-                  <div className='flex gap-2'>
-                    <input
-                      type='checkbox'
-                      id='parking'
-                      className='w-5'
-                      onChange={handleListingChange}
-                      checked={listingFormData.parking}
-                    />
-                    <span>Parking spot</span>
-                  </div>
-                  <div className='flex gap-2'>
-                    <input
-                      type='checkbox'
-                      id='furnished'
-                      className='w-5'
-                      onChange={handleListingChange}
-                      checked={listingFormData.furnished}
-                    />
-                    <span>Furnished</span>
-                  </div>
-                  <div className='flex gap-2'>
-                    <input
-                      type='checkbox'
-                      id='offer'
-                      className='w-5'
-                      onChange={handleListingChange}
-                      checked={listingFormData.offer}
-                    />
-                    <span>Offer</span>
-                  </div>
-                </div>
-                <div className='flex flex-wrap gap-6'>
-                  <div className='flex items-center gap-2'>
-                    <input
-                      type='number'
-                      id='bedrooms'
-                      min='1'
-                      max='10'
-                      required
-                      className='p-3 border border-gray-300 rounded-lg'
-                      onChange={handleListingChange}
-                      value={listingFormData.bedrooms}
-                    />
-                    <p>Beds</p>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <input
-                      type='number'
-                      id='bathrooms'
-                      min='1'
-                      max='10'
-                      required
-                      className='p-3 border border-gray-300 rounded-lg'
-                      onChange={handleListingChange}
-                      value={listingFormData.bathrooms}
-                    />
-                    <p>Baths</p>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <input
-                      type='number'
-                      id='regularPrice'
-                      min='50'
-                      max='10000000'
-                      required
-                      className='p-3 border border-gray-300 rounded-lg'
-                      onChange={handleListingChange}
-                      value={listingFormData.regularPrice}
-                    />
-                    <div className='flex flex-col items-center'>
-                      <p>Regular price</p>
-                      {listingFormData.type === 'rent' && (
-                        <span className='text-xs'>($ / month)</span>
-                      )}
-                    </div>
-                  </div>
-                  {listingFormData.offer && (
-                    <div className='flex items-center gap-2'>
-                      <input
-                        type='number'
-                        id='discountPrice'
-                        min='0'
-                        max='10000000'
-                        required
-                        className='p-3 border border-gray-300 rounded-lg'
-                        onChange={handleListingChange}
-                        value={listingFormData.discountPrice}
-                      />
-                      <div className='flex flex-col items-center'>
-                        <p>Discounted price</p>
-                        {listingFormData.type === 'rent' && (
-                          <span className='text-xs'>($ / month)</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className='flex flex-col flex-1 gap-4'>
-                <p className='font-semibold'>
-                  Images:
-                  <span className='font-normal text-gray-600 ml-2'>
-                    The first image will be the cover (max 6)
-                  </span>
-                </p>
-                <div className='flex gap-4'>
-                  <input
-                    onChange={(e) => setListingFiles(e.target.files)}
-                    className='p-3 border border-gray-300 rounded w-full'
-                    type='file'
-                    id='images'
-                    accept='image/*'
-                    multiple
-                  />
-                  <button
-                    type='button'
-                    disabled={uploading}
-                    onClick={handleImageSubmit}
-                    className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
-                  >
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </button>
-                </div>
-                <p className='text-red-700 text-sm'>
-                  {imageUploadError && imageUploadError}
-                </p>
-                {listingFormData.imageUrls.length > 0 &&
-                  listingFormData.imageUrls.map((url, index) => (
-                    <div
-                      key={url}
-                      className='flex justify-between p-3 border items-center'
-                    >
-                      <img
-                        src={url}
-                        alt='listing image'
-                        className='w-20 h-20 object-contain rounded-lg'
-                      />
-                      <button
-                        type='button'
-                        onClick={() => handleRemoveImage(index)}
-                        className='p-3 text-red-700 rounded-lg uppercase hover:opacity-75'
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  ))}
-                <button
-                  disabled={listingLoading || uploading}
-                  className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
-                >
-                  {listingLoading ? (editingListing ? 'Updating...' : 'Creating...') : (editingListing ? 'Update listing' : 'Create listing')}
-                </button>
-                {listingError && <p className='text-red-700 text-sm'>{listingError}</p>}
-                
-                {editingListing && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingListing(null);
-                      setActiveTab("listings");
-                    }}
-                    className="p-3 bg-gray-500 text-white rounded-lg uppercase hover:opacity-95"
-                  >
-                    Cancel Edit
-                  </button>
-                )}
-              </div>
-            </form>
-          </>
-        )} */}
         {activeTab === "create-listing" && (
-          <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-6xl mx-auto md:px-4">
             {/* Header Section */}
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -963,7 +748,7 @@ export default function Profile() {
 
             <form onSubmit={handleListingSubmit} className="">
               {/* Form Container with Two Columns */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 -mx-2 md:-mx-0">
                 {/* Left Column - Basic Information */}
                 <div className="space-y-6">
                   <div className="bg-blue-50 p-4 rounded-xl">
@@ -1063,24 +848,24 @@ export default function Profile() {
                       {/* Built Year */}
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                        <label
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                          htmlFor="builtYear"
-                        >
-                          Year Built
-                        </label>
-                        <input
-                          type="number"
-                          id="builtYear"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                          placeholder="e.g., 2020"
-                          min="1900"
-                          max={new Date().getFullYear()}
-                          onChange={handleListingChange}
-                          value={listingFormData.builtYear}
-                        />
-                      </div>
-                      <div>
+                          <label
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                            htmlFor="builtYear"
+                          >
+                            Year Built
+                          </label>
+                          <input
+                            type="number"
+                            id="builtYear"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            placeholder="e.g., 2020"
+                            min="1900"
+                            max={new Date().getFullYear()}
+                            onChange={handleListingChange}
+                            value={listingFormData.builtYear}
+                          />
+                        </div>
+                        <div>
                           <label
                             className="block text-sm font-medium text-gray-700 mb-1"
                             htmlFor="status"

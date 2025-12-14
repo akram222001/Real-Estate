@@ -163,6 +163,8 @@ import {
   FaBath,
   FaBed,
   FaChair,
+  FaChevronLeft,
+  FaChevronRight,
   FaMapMarkerAlt,
   FaParking,
   FaShare,
@@ -185,7 +187,9 @@ export default function Listing() {
     const fetchListing = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API_BASE}/api/listing/get/${params.listingId}`);
+        const res = await fetch(
+          `${API_BASE}/api/listing/get/${params.listingId}`
+        );
         const data = await res.json();
         if (data.success === false) {
           setError(true);
@@ -204,7 +208,7 @@ export default function Listing() {
 
   return (
     <main className="bg-white">
-      {loading && <p className="text-center text-xl mt-10">Loading...</p>}
+      {loading && <p className="text-center text-xl my-10">Loading...</p>}
       {error && (
         <p className="text-center text-xl mt-10 text-red-600">
           Something went wrong!
@@ -214,19 +218,40 @@ export default function Listing() {
       {listing && !loading && !error && (
         <div className="pb-10">
           {/* IMAGE SLIDER */}
-          <Swiper navigation>
-            {listing.imageUrls.map((url, i) => (
-              <SwiperSlide key={i}>
-                <div
-                  style={{
-                    background: `url(${url}) center no-repeat`,
-                    backgroundSize: "cover",
-                  }}
-                  className="h-[500px]"
-                ></div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="relative group">
+            <Swiper
+              navigation={{
+                nextEl: ".swiper-next-btn",
+                prevEl: ".swiper-prev-btn",
+              }}
+              modules={[Navigation]}
+              className="overflow-hidden"
+            >
+              {listing.imageUrls.map((url, i) => (
+                <SwiperSlide key={i}>
+                  <div
+                    style={{
+                      background: `url(${url}) center no-repeat`,
+                      backgroundSize: "cover",
+                    }}
+                    className="md:h-[500px] h-[180px]"
+                  ></div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+        
+
+
+{/* Navigation Buttons */}
+<div className="swiper-prev-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
+  <FaChevronLeft className="text-gray-800 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+</div>
+
+<div className="swiper-next-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
+  <FaChevronRight className="text-gray-800 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+</div>
+          </div>
 
           {/* SHARE BUTTON */}
           <div className="fixed top-[13%] right-[3%] z-10 border rounded-full w-12 h-12 flex justify-center items-center bg-white shadow-xl cursor-pointer">
@@ -246,7 +271,7 @@ export default function Listing() {
           )}
 
           {/* DETAILS */}
-          <div className="max-w-5xl mx-auto p-5 space-y-5 mt-8 bg-white rounded-xl">
+          <div className="max-w-5xl mx-auto p-5 space-y-5 md:mt-8 mt-4 bg-white rounded-xl">
             {/* TITLE + PRICE */}
             <div className="flex justify-between items-center flex-wrap gap-3">
               <h1 className="text-3xl font-bold text-slate-900">
@@ -270,7 +295,7 @@ export default function Listing() {
             </p>
 
             {/* BADGES */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 items-center justify-center sm:items-start sm:justify-start">
               <span className="bg-red-600 text-white px-4 py-1 rounded-md">
                 {listing.type === "rent" ? "For Rent" : "For Sale"}
               </span>
@@ -296,28 +321,110 @@ export default function Listing() {
             </div>
 
             {/* BASIC FEATURES */}
-            <ul className="flex flex-wrap gap-6 text-green-900 font-semibold text-lg">
-              <li className="flex items-center gap-1">
-                <FaBed /> {listing.bedrooms} Bedrooms
+            <ul className="flex flex-wrap bg-slate-50 border p-5 rounded-lg leading-relaxed justify-between sm:justify-start sm:gap-6 text-green-900">
+              <li className="flex flex-col sm:flex-row sm:items-center items-center gap-1">
+                <div className="bg-green-50 p-2 rounded-full sm:p-0 sm:bg-transparent">
+                  <FaBed className="text-xl sm:text-xl" />
+                </div>
+                <span className="text-xs sm:text-lg font-semibold mt-1 sm:mt-0">
+                  {listing.bedrooms}{" "}
+                  {window.innerWidth >= 640 ? "Bedrooms" : "Beds"}
+                </span>
               </li>
-              <li className="flex items-center gap-1">
-                <FaBath /> {listing.bathrooms} Bathrooms
+              <li className="flex flex-col sm:flex-row sm:items-center items-center gap-1">
+                <div className="bg-green-50 p-2 rounded-full sm:p-0 sm:bg-transparent">
+                  <FaBath className="text-lg sm:text-xl" />
+                </div>
+                <span className="text-xs sm:text-lg font-semibold mt-1 sm:mt-0">
+                  {listing.bathrooms}{" "}
+                  {window.innerWidth >= 640 ? "Bathrooms" : "Baths"}
+                </span>
               </li>
-              <li className="flex items-center gap-1">
-                <FaParking /> {listing.parking ? "Parking Available" : "No Parking"}
+              <li className="flex flex-col sm:flex-row sm:items-center items-center gap-1">
+                <div className="bg-green-50 p-2 rounded-full sm:p-0 sm:bg-transparent">
+                  <FaParking className="text-lg sm:text-xl" />
+                </div>
+                <span className="text-xs sm:text-lg font-semibold mt-1 sm:mt-0">
+                  {listing.parking
+                    ? window.innerWidth >= 640
+                      ? "Parking"
+                      : "Park"
+                    : "No Park"}
+                </span>
               </li>
-              <li className="flex items-center gap-1">
-                <FaChair /> {listing.furnished ? "Furnished" : "Unfurnished"}
+              <li className="flex flex-col sm:flex-row sm:items-center items-center gap-1">
+                <div className="bg-green-50 p-2 rounded-full sm:p-0 sm:bg-transparent">
+                  <FaChair className="text-lg sm:text-xl" />
+                </div>
+                <span className="text-xs sm:text-lg font-semibold mt-1 sm:mt-0">
+                  {listing.furnished ? "Furnished" : "Unfurn"}
+                </span>
               </li>
             </ul>
 
             {/* PROPERTY DETAILS */}
-            <div className="bg-slate-50 p-5 rounded-lg border space-y-1">
-              <h3 className="text-xl font-semibold mb-2">🏠 Property Details</h3>
-              <p><b>Category:</b> {listing.category}</p>
-              <p><b>Area:</b> {listing.area} sqft</p>
-              {listing.builtYear && <p><b>Built Year:</b> {listing.builtYear}</p>}
-              <p><b>Status:</b> {listing.status}</p>
+            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-blue-50 p-3 rounded-xl">
+                  <span className="text-2xl">🏠</span>
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
+                    Property Details
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    Complete property information
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-slate-50 p-4 rounded-xl text-center">
+                  <div className="text-gray-500 text-sm font-medium mb-1">
+                    Category
+                  </div>
+                  <div className="text-gray-800 font-bold text-lg">
+                    {listing.category}
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-xl text-center">
+                  <div className="text-gray-500 text-sm font-medium mb-1">
+                    Area
+                  </div>
+                  <div className="text-gray-800 font-bold text-lg">
+                    {listing.area} sqft
+                  </div>
+                </div>
+
+                {listing.builtYear && (
+                  <div className="bg-slate-50 p-4 rounded-xl text-center">
+                    <div className="text-gray-500 text-sm font-medium mb-1">
+                      Built Year
+                    </div>
+                    <div className="text-gray-800 font-bold text-lg">
+                      {listing.builtYear}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-slate-50 p-4 rounded-xl text-center">
+                  <div className="text-gray-500 text-sm font-medium mb-1">
+                    Status
+                  </div>
+                  <div
+                    className={`font-bold text-lg ${
+                      listing.status === "Available"
+                        ? "text-green-600"
+                        : listing.status === "Sold"
+                        ? "text-red-600"
+                        : "text-blue-600"
+                    }`}
+                  >
+                    {listing.status}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* AMENITIES */}

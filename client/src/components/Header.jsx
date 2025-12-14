@@ -1,79 +1,3 @@
-// import { FaSearch } from 'react-icons/fa';
-// import { Link, useNavigate } from 'react-router-dom';
-// import { useSelector } from 'react-redux';
-// import { useEffect, useState } from 'react';
-
-// export default function Header() {
-//   const { currentUser } = useSelector((state) => state.user);
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const navigate = useNavigate();
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     const urlParams = new URLSearchParams(window.location.search);
-//     urlParams.set('searchTerm', searchTerm);
-//     const searchQuery = urlParams.toString();
-//     navigate(`/search?${searchQuery}`);
-//   };
-
-//   useEffect(() => {
-//     const urlParams = new URLSearchParams(location.search);
-//     const searchTermFromUrl = urlParams.get('searchTerm');
-//     if (searchTermFromUrl) {
-//       setSearchTerm(searchTermFromUrl);
-//     }
-//   }, [location.search]);
-//   return (
-//     <header className='bg-slate-200 shadow-md'>
-//       <div className='flex justify-between items-center max-w-6xl mx-auto p-3'>
-//         <Link to='/'>
-//           <h1 className='font-bold text-sm sm:text-xl flex flex-wrap'>
-//             <span className='text-slate-500'>Home</span>
-//             <span className='text-slate-700'>Spot</span>
-//           </h1>
-//         </Link>
-//         <form
-//           onSubmit={handleSubmit}
-//           className='bg-slate-100 p-3 rounded-lg flex items-center'
-//         >
-//           <input
-//             type='text'
-//             placeholder='Search...'
-//             className='bg-transparent focus:outline-none w-24 sm:w-64'
-//             value={searchTerm}
-//             onChange={(e) => setSearchTerm(e.target.value)}
-//           />
-//           <button>
-//             <FaSearch className='text-slate-600' />
-//           </button>
-//         </form>
-//         <ul className='flex gap-4'>
-//           <Link to='/'>
-//             <li className='hidden sm:inline text-slate-700 hover:underline'>
-//               Home
-//             </li>
-//           </Link>
-//           <Link to='/about'>
-//             <li className='hidden sm:inline text-slate-700 hover:underline'>
-//               About
-//             </li>
-//           </Link>
-//           <Link to='/profile'>
-//             {currentUser ? (
-//               <img
-//                 className='rounded-full h-7 w-7 object-cover'
-//                 src={currentUser.avatar}
-//                 alt='profile'
-//               />
-//             ) : (
-//               <li className=' text-slate-700 hover:underline'> Sign in</li>
-//             )}
-//           </Link>
-//         </ul>
-//       </div>
-//     </header>
-//   );
-// }
-
 import { FaSearch, FaUser, FaHome, FaInfoCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -133,7 +57,7 @@ export default function Header() {
               onClick={closeMobileMenu}
             >
               <div className="flex flex-col">
-                <h1 className="font-bold text-sm sm:text-xl flex">
+                <h1 className="font-bold text-lg sm:text-xl flex">
                   <span className="text-slate-500">Home</span>
                   <span className="text-slate-700">Spot</span>
                 </h1>
@@ -222,8 +146,8 @@ export default function Header() {
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Search properties, locations..."
-                      className="w-full px-4 py-1 pl-4 pr-10 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200 bg-white text-center"
+                      placeholder="Search proper..."
+                      className="w-full px-4 py-1 pl-4 pr-10 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200 bg-white"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -249,95 +173,99 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu Overlay */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden">
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={closeMobileMenu}
-            ></div>
 
-            <div className="fixed right-0 top-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300">
-              <div className="flex flex-col h-full">
-                {/* Mobile Menu Header */}
-                <div className="p-4 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Menu
-                    </h2>
-                    <button
-                      onClick={closeMobileMenu}
-                      className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+        <div className="lg:hidden">
+          <div
+            onClick={closeMobileMenu}
+            className={`fixed inset-0 bg-black z-40 transition-opacity duration-300
+    ${isMobileMenuOpen ? "opacity-50 visible" : "opacity-0 invisible"}
+  `}
+          ></div>
+
+          <div
+            className={`fixed right-0 top-0 h-full w-64 bg-white shadow-xl z-50
+    transform transition-transform duration-500 ease-in-out
+    ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}
+  `}
+          >
+            <div className="flex flex-col h-full">
+              {/* Mobile Menu Header */}
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+                  <button
+                    onClick={closeMobileMenu}
+                    className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      <svg
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
+              </div>
 
-                {/* Mobile Menu Items */}
-                <div className="flex-1 p-4 space-y-4">
-                  <Link
-                    to="/"
-                    className="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 font-medium"
-                    onClick={closeMobileMenu}
-                  >
-                    <FaHome className="h-5 w-5" />
-                    <span>Home</span>
-                  </Link>
+              {/* Mobile Menu Items */}
+              <div className="flex-1 p-4 space-y-4">
+                <Link
+                  to="/"
+                  className="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  <FaHome className="h-5 w-5" />
+                  <span>Home</span>
+                </Link>
 
-                  <Link
-                    to="/about"
-                    className="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 font-medium"
-                    onClick={closeMobileMenu}
-                  >
-                    <FaInfoCircle className="h-5 w-5" />
-                    <span>About</span>
-                  </Link>
+                <Link
+                  to="/about"
+                  className="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  <FaInfoCircle className="h-5 w-5" />
+                  <span>About</span>
+                </Link>
 
-                  <Link
-                    to="/profile"
-                    className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium mt-8"
-                    onClick={closeMobileMenu}
-                  >
-                    <FaUser className="h-5 w-5" />
-                    <span>{currentUser ? "My Profile" : "Sign In"}</span>
-                  </Link>
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium mt-8"
+                  onClick={closeMobileMenu}
+                >
+                  <FaUser className="h-5 w-5" />
+                  <span>{currentUser ? "My Profile" : "Sign In"}</span>
+                </Link>
 
-                  {currentUser && (
-                    <div className="p-3 border-t border-gray-200 mt-4">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          className="rounded-full h-10 w-10 object-cover"
-                          src={currentUser.avatar}
-                          alt="Profile"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {currentUser.name}
-                          </p>
-                          <p className="text-sm text-gray-500 truncate">
-                            {currentUser.email}
-                          </p>
-                        </div>
+                {currentUser && (
+                  <div className="p-3 border-t border-gray-200 mt-4">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        className="rounded-full h-10 w-10 object-cover"
+                        src={currentUser.avatar}
+                        alt="Profile"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {currentUser.name}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">
+                          {currentUser.email}
+                        </p>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        )}
+        </div>
       </header>
     </>
   );

@@ -156,6 +156,7 @@ import "swiper/css/bundle";
 import ListingItem from "../components/ListingItem";
 import { useOutletContext } from "react-router-dom";
 import { API_BASE } from "../../config";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
@@ -223,9 +224,10 @@ export default function Home() {
           <div className="relative">
             <Swiper
               navigation={{
-                nextEl: ".custom-next",
-                prevEl: ".custom-prev",
+                nextEl: ".swiper-next-btn",
+                prevEl: ".swiper-prev-btn",
               }}
+              loop={true}
               pagination={{ clickable: true }}
               modules={[Navigation, Pagination]}
               className="rounded-2xl overflow-hidden shadow-lg w-full"
@@ -240,6 +242,14 @@ export default function Home() {
                 </SwiperSlide>
               ))}
             </Swiper>
+            {/* Navigation Buttons */}
+            <div className="swiper-prev-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
+              <FaChevronLeft className="text-gray-800 w-2 h-2 sm:w-4 sm:h-4 md:w-4 md:h-4" />
+            </div>
+
+            <div className="swiper-next-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
+              <FaChevronRight className="text-gray-800 w-2 h-2 sm:w-5 sm:h-5 md:w-4 md:h-4" />
+            </div>
           </div>
         </div>
       </section>

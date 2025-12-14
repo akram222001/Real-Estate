@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 
 export default function Footer({ footerData = [] }) {
   return (
-    <footer className="bg-gradient-to-r from-slate-900 to-slate-800 text-gray-200 pt-12 pb-8 mt-10">
+    <footer className="bg-gradient-to-r from-slate-900 to-slate-800 text-gray-200 pt-12 pb-8">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-10">
         {/* Logo + Tagline */}
         <div>
@@ -57,6 +57,44 @@ export default function Footer({ footerData = [] }) {
         </div>
 
         {/* Quick Links */}
+        <div className="hidden md:block">
+          <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
+          <ul className="space-y-3 text-gray-300">
+            <li>
+              <Link to="/" className="hover:text-blue-400 transition">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-blue-400 transition">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link to="/search" className="hover:text-blue-400 transition">
+                Search Properties
+              </Link>
+            </li>
+          </ul>
+        </div>
+        
+        {/* Popular Categories */}
+        <div className="hidden md:block">
+          <h3 className="text-lg font-semibold mb-4 text-white">
+            Popular Categories
+          </h3>
+          <ul className="space-y-3 text-gray-300">
+            {footerData?.map((cat, index) => (
+              <li key={index}>
+                <Link to={cat.link} className="hover:text-blue-400 transition">
+                  {cat.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+         <div className="flex flex-row justify-between md:hidden lg:hidden">
+          {/* Quick Links */}
         <div>
           <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
           <ul className="space-y-3 text-gray-300">
@@ -75,15 +113,9 @@ export default function Footer({ footerData = [] }) {
                 Search Properties
               </Link>
             </li>
-            <li>
-              <Link to="/profile" className="hover:text-blue-400 transition">
-                Profile / Login
-              </Link>
-            </li>
           </ul>
         </div>
-
-        {/* Popular Categories */}
+        
         {/* Popular Categories */}
         <div>
           <h3 className="text-lg font-semibold mb-4 text-white">
@@ -98,6 +130,7 @@ export default function Footer({ footerData = [] }) {
               </li>
             ))}
           </ul>
+        </div>
         </div>
 
         {/* Contact Info */}
