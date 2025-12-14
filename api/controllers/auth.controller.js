@@ -36,24 +36,134 @@ export const signup = async (req, res, next) => {
   }
 };
 
+// export const signin = async (req, res, next) => {
+//   const { email, password } = req.body;
+//   try {
+//     const validUser = await User.findOne({ email });
+//     if (!validUser) return next(errorHandler(404, "User not found!"));
+//     const validPassword = bcryptjs.compareSync(password, validUser.password);
+//     if (!validPassword) return next(errorHandler(401, "Wrong credentials!"));
+//     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+//     const { password: pass, ...rest } = validUser._doc;
+//     res
+//       .cookie("access_token", token, { httpOnly: true })
+//       .status(200)
+//       .json(rest);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+// export const signin = async (req, res, next) => {
+//   const { email, password } = req.body;
+//   try {
+//     const validUser = await User.findOne({ email });
+//     if (!validUser) return next(errorHandler(404, "User not found!"));
+    
+//     const validPassword = bcryptjs.compareSync(password, validUser.password);
+//     if (!validPassword) return next(errorHandler(401, "Wrong credentials!"));
+    
+//     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+//     const { password: pass, ...rest } = validUser._doc;
+    
+//     res
+//       .cookie("access_token", token, { httpOnly: true })
+//       .status(200)
+//       .json({
+//         ...rest,  // User data
+//         token: token  // 🔥 TOKEN ADD KAREIN
+//       });
+      
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const validUser = await User.findOne({ email });
     if (!validUser) return next(errorHandler(404, "User not found!"));
+    
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) return next(errorHandler(401, "Wrong credentials!"));
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    
+    // 🔥 YEH LINE CHECK KAREIN
+    const token = jwt.sign(
+      { id: validUser._id }, 
+      process.env.JWT_SECRET, // Should be "importantSecretKey"
+      { expiresIn: '24h' } // Optional: expiry add karein
+    );
+    
+    console.log('🔐 Generated token:', token);
+    console.log('Using JWT_SECRET:', process.env.JWT_SECRET);
+    
     const { password: pass, ...rest } = validUser._doc;
+    
     res
       .cookie("access_token", token, { httpOnly: true })
       .status(200)
-      .json(rest);
+      .json({
+        ...rest,
+        token: token
+      });
+      
   } catch (error) {
     next(error);
   }
 };
+// export const google = async (req, res, next) => {
+//   try {
+//     const { token } = req.body; // frontend se Google credential token
 
+//     // Verify token from Google
+//     const ticket = await client.verifyIdToken({
+//       idToken: token,
+//       audience: process.env.GOOGLE_CLIENT_ID,
+//     });
+
+//     const { name, email, picture } = ticket.getPayload();
+
+//     let user = await User.findOne({ email });
+
+//     if (user) {
+//       const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+//         expiresIn: "7d",
+//       });
+//       const { password, ...rest } = user._doc;
+
+//       return res
+//         .cookie("access_token", jwtToken, { httpOnly: true })
+//         .status(200)
+//         .json(rest);
+//     }
+
+//     // Create new user if not exists
+//     const generatedPassword =
+//       Math.random().toString(36).slice(-8) +
+//       Math.random().toString(36).slice(-8);
+//     const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+//     const newUser = new User({
+//       username: name, // exact Google name
+//       email, // exact Google email
+//       password: hashedPassword,
+//       avatar: picture, // exact Google avatar
+//     });
+
+//     await newUser.save();
+
+//     const jwtToken = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+//       expiresIn: "7d",
+//     });
+//     const { password: pass, ...rest } = newUser._doc;
+
+//     res
+//       .cookie("access_token", jwtToken, { httpOnly: true })
+//       .status(200)
+//       .json(rest);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 export const google = async (req, res, next) => {
   try {
     const { token } = req.body; // frontend se Google credential token
@@ -77,7 +187,10 @@ export const google = async (req, res, next) => {
       return res
         .cookie("access_token", jwtToken, { httpOnly: true })
         .status(200)
-        .json(rest);
+        .json({
+          ...rest,
+          token: jwtToken // 🔥 ADD THIS LINE - Frontend ke liye token
+        });
     }
 
     // Create new user if not exists
@@ -103,12 +216,14 @@ export const google = async (req, res, next) => {
     res
       .cookie("access_token", jwtToken, { httpOnly: true })
       .status(200)
-      .json(rest);
+      .json({
+        ...rest,
+        token: jwtToken // 🔥 ADD THIS LINE - Frontend ke liye token
+      });
   } catch (error) {
     next(error);
   }
 };
-
 export const signOut = async (req, res, next) => {
   try {
     res.clearCookie("access_token");
