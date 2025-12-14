@@ -52,6 +52,7 @@ import Search from './pages/Search';
 import Footer from './components/footer';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 
 function Layout(){
   const [footerData, setFooterData] = useState([]);
@@ -67,6 +68,7 @@ function Layout(){
 export default function App() {
   return (
     <BrowserRouter>
+        <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
         <Route path='/' element={<Home />} />

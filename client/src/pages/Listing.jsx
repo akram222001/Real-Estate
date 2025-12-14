@@ -156,7 +156,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
-import { Navigation } from "swiper/modules";
+import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css/bundle";
 import { useSelector } from "react-redux";
 import {
@@ -224,7 +224,13 @@ export default function Listing() {
                 nextEl: ".swiper-next-btn",
                 prevEl: ".swiper-prev-btn",
               }}
-              modules={[Navigation]}
+              loop={true}
+              autoplay={{
+                delay: 3000, // 3 seconds
+                disableOnInteraction: false, // user swipe ke baad bhi autoplay chale
+                pauseOnMouseEnter: true, // hover pe pause (optional)
+              }}
+              modules={[Navigation, Autoplay]}
               className="overflow-hidden"
             >
               {listing.imageUrls.map((url, i) => (
@@ -240,22 +246,20 @@ export default function Listing() {
               ))}
             </Swiper>
 
-        
+            {/* Navigation Buttons */}
+            <div className="swiper-prev-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
+              <FaChevronLeft className="text-gray-800 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+            </div>
 
-
-{/* Navigation Buttons */}
-<div className="swiper-prev-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
-  <FaChevronLeft className="text-gray-800 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-</div>
-
-<div className="swiper-next-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
-  <FaChevronRight className="text-gray-800 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-</div>
+            <div className="swiper-next-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
+              <FaChevronRight className="text-gray-800 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+            </div>
           </div>
 
           {/* SHARE BUTTON */}
-          <div className="fixed top-[13%] right-[3%] z-10 border rounded-full w-12 h-12 flex justify-center items-center bg-white shadow-xl cursor-pointer">
+          <div className="fixed md:top-[16%] top-[11%] right-[2%] z-10 border rounded-full md:w-12 w-6 md:h-12 h-6 flex justify-center items-center bg-white shadow-xl cursor-pointer">
             <FaShare
+              size={14}
               className="text-slate-600"
               onClick={() => {
                 navigator.clipboard.writeText(window.location.href);

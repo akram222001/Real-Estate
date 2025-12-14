@@ -151,7 +151,7 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import "swiper/css/bundle";
 import ListingItem from "../components/ListingItem";
 import { useOutletContext } from "react-router-dom";
@@ -228,8 +228,13 @@ export default function Home() {
                 prevEl: ".swiper-prev-btn",
               }}
               loop={true}
+              autoplay={{
+                delay: 3000, // 3 seconds
+                disableOnInteraction: false, // user swipe ke baad bhi autoplay chale
+                pauseOnMouseEnter: true, // hover pe pause (optional)
+              }}
               pagination={{ clickable: true }}
-              modules={[Navigation, Pagination]}
+              modules={[Navigation, Pagination, Autoplay]}
               className="rounded-2xl overflow-hidden shadow-lg w-full"
             >
               {offerListings.map((listing) => (
