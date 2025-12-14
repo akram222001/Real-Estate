@@ -6,6 +6,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css/bundle";
 import ListingItem from "../components/ListingItem";
 import { useOutletContext } from "react-router-dom";
+import { API_BASE } from "../../config";
 
 export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
@@ -24,13 +25,13 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const offer = await fetch("/api/listing/get?offer=true&limit=4");
+        const offer = await fetch(`${API_BASE}/api/listing/get?offer=true&limit=4`);
         setOfferListings(await offer.json());
 
-        const rent = await fetch("/api/listing/get?type=rent&limit=4");
+        const rent = await fetch(`${API_BASE}/api/listing/get?type=rent&limit=4`);
         setRentListings(await rent.json());
 
-        const sale = await fetch("/api/listing/get?type=sale&limit=4");
+        const sale = await fetch(`${API_BASE}/api/listing/get?type=sale&limit=4`);
         setSaleListings(await sale.json());
       } catch (error) {
         console.log(error);

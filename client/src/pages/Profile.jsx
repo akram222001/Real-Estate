@@ -1,15 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useRef, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-// import {
-//   getStorage,
-//   ref,
-//   uploadBytesResumable,
-//   getDownloadURL,
-// } from "firebase/storage";
-// import { app } from "../firebase";
-
 import {
   updateUserStart,
   updateUserSuccess,
@@ -21,6 +12,102 @@ import {
 } from "../redux/user/userSlice";
 import { RiDeleteBin3Fill } from "react-icons/ri";
 import { FaEdit } from "react-icons/fa";
+import { API_BASE } from "../../config";
+
+// ==================== HELPER FUNCTIONS ====================
+
+// Get authentication token from multiple sources
+const getAuthToken = () => {
+  // 1. Check Redux persist state
+  try {
+    const state = JSON.parse(localStorage.getItem('persist:root') || '{}');
+    if (state?.user) {
+      const userState = JSON.parse(state.user);
+      if (userState.currentUser?.token) {
+        return userState.currentUser.token;
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing Redux state:', error);
+  }
+  
+  // 2. Check localStorage
+  const lsToken = localStorage.getItem('token');
+  if (lsToken) return lsToken;
+  
+  // 3. Check cookies
+  const cookieToken = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('access_token='))
+    ?.split('=')[1];
+  
+  return cookieToken || null;
+};
+
+// Make authenticated fetch request
+const authFetch = async (url, options = {}) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error("Authentication required. Please login again.");
+  }
+  
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+    ...options.headers,
+  };
+  
+  // Remove credentials temporarily to avoid CORS issues
+  const config = {
+    ...options,
+    headers,
+    // credentials: 'include', // Temporarily disabled for CORS
+  };
+  
+  console.log(`📡 API Call: ${url}`);
+  
+  try {
+    const response = await fetch(url, config);
+    
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      throw new Error("Session expired. Please login again.");
+    }
+    
+    return response;
+  } catch (error) {
+    console.error(`❌ API Error:`, error);
+    throw error;
+  }
+};
+
+// Make authenticated FormData request (for file uploads)
+const authFetchFormData = async (url, formData) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error("Authentication required. Please login again.");
+  }
+  
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+      // No Content-Type for FormData (browser sets it automatically)
+    },
+    body: formData,
+  });
+  
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    throw new Error("Session expired. Please login again.");
+  }
+  
+  return response;
+};
+
+// ==================== MAIN COMPONENT ====================
 
 export default function Profile() {
   const fileRef = useRef(null);
@@ -28,16 +115,14 @@ export default function Profile() {
   const navigate = useNavigate();
   const { currentUser, loading } = useSelector((s) => s.user);
 
+  // State declarations
   const [activeTab, setActiveTab] = useState("profile");
-
   const [file, setFile] = useState(null);
   const [filePerc, setFilePerc] = useState(0);
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
-
   const [showListingsError, setShowListingsError] = useState(false);
   const [userListings, setUserListings] = useState([]);
-
   const [listingFiles, setListingFiles] = useState([]);
   const [listingFormData, setListingFormData] = useState({
     imageUrls: [],
@@ -70,6 +155,8 @@ export default function Profile() {
   const [listingLoading, setListingLoading] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
 
+  // ==================== USE EFFECTS ====================
+
   useEffect(() => {
     if (file) {
       uploadFile(file);
@@ -80,7 +167,7 @@ export default function Profile() {
     if (editingListing) {
       const fetchListing = async () => {
         try {
-          const res = await fetch(`/api/listing/get/${editingListing}`);
+          const res = await fetch(`${API_BASE}/api/listing/get/${editingListing}`);
           const data = await res.json();
           if (data.success === false) {
             console.log(data.message);
@@ -95,55 +182,33 @@ export default function Profile() {
     }
   }, [editingListing]);
 
+  // ==================== PROFILE FUNCTIONS ====================
+
   const uploadFile = async (file) => {
     try {
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${
-            document.cookie.split("access_token=")[1]?.split(";")[0]
-          }`,
-        },
-        body: formData,
-      });
+      const res = await authFetchFormData(
+        `${API_BASE}/api/user/update/${currentUser._id}`,
+        formData
+      );
 
       const data = await res.json();
+      
       if (data.success === false) {
-        console.error(data.message);
+        alert(data.message);
         return;
       }
 
-      setFormData({ ...formData, avatar: data.avatar });
+      setFormData(prev => ({ ...prev, avatar: data.avatar }));
       dispatch(updateUserSuccess(data));
       setFilePerc(100);
+      alert("✅ Photo uploaded successfully!");
     } catch (error) {
-      console.error(error.message);
+      alert("Upload failed: " + error.message);
     }
   };
-
-  // const uploadFile = (file) => {
-  //   const storage = getStorage(app);
-  //   const fileName = Date.now() + file.name;
-  //   const storageRef = ref(storage, fileName);
-  //   const uploadTask = uploadBytesResumable(storageRef, file);
-
-  //   uploadTask.on(
-  //     "state_changed",
-  //     (snap) => {
-  //       const progress = (snap.bytesTransferred / snap.totalBytes) * 100;
-  //       setFilePerc(Math.round(progress));
-  //     },
-  //     () => {},
-  //     () => {
-  //       getDownloadURL(uploadTask.snapshot.ref).then((url) =>
-  //         setFormData({ ...formData, avatar: url })
-  //       );
-  //     }
-  //   );
-  // };
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -152,21 +217,25 @@ export default function Profile() {
     e.preventDefault();
     try {
       dispatch(updateUserStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      
+      const res = await authFetch(`${API_BASE}/api/user/update/${currentUser._id}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
+      
       if (data.success === false) {
         dispatch(updateUserFailure(data.message));
         return;
       }
+      
       dispatch(updateUserSuccess(data));
       setUpdateSuccess(true);
+      alert("✅ Profile updated successfully!");
     } catch (err) {
       dispatch(updateUserFailure(err.message));
+      alert("Update failed: " + err.message);
     }
   };
 
@@ -176,16 +245,20 @@ export default function Profile() {
 
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+      
+      const res = await authFetch(`${API_BASE}/api/user/delete/${currentUser._id}`, {
         method: "DELETE",
       });
+      
       const data = await res.json();
 
       if (data.success === false) {
         dispatch(deleteUserFailure(data.message));
         return;
       }
+      
       dispatch(deleteUserSuccess(data));
+      navigate('/');
     } catch (err) {
       dispatch(deleteUserFailure(err.message));
     }
@@ -193,49 +266,69 @@ export default function Profile() {
 
   const handleSignOut = async () => {
     dispatch(signOutUserStart());
-    await fetch("/api/auth/signout");
+    
+    try {
+      const token = getAuthToken();
+      if (token) {
+        await fetch(`${API_BASE}/api/auth/signout`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+      }
+    } catch (error) {
+      console.log("Signout error:", error);
+    }
+    
     dispatch(deleteUserSuccess());
+    navigate('/');
   };
+
+  // ==================== LISTING FUNCTIONS ====================
 
   const handleListingDelete = async (listingId) => {
     if (!window.confirm("Are you sure you want to delete your List Item?"))
       return;
+    
     try {
-      const res = await fetch(`/api/listing/delete/${listingId}`, {
+      const res = await authFetch(`${API_BASE}/api/listing/delete/${listingId}`, {
         method: "DELETE",
       });
+      
       const data = await res.json();
+      
       if (data.success === false) {
-        console.log(data.message);
+        alert("Delete failed: " + data.message);
         return;
       }
 
-      setUserListings((prev) =>
-        prev.filter((listing) => listing._id !== listingId)
-      );
+      setUserListings(prev => prev.filter(listing => listing._id !== listingId));
+      alert("✅ Listing deleted successfully!");
     } catch (error) {
-      console.log(error.message);
+      alert("Delete failed: " + error.message);
     }
   };
 
   const handleShowListings = async () => {
     try {
       setShowListingsError(false);
-      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      
+      const res = await authFetch(`${API_BASE}/api/user/listings/${currentUser._id}`);
       const data = await res.json();
 
       if (data.success === false) {
         setShowListingsError(true);
+        alert("Error: " + data.message);
         return;
       }
 
       setUserListings(data);
-    } catch {
+    } catch (error) {
+      console.error('❌ Listings fetch error:', error);
       setShowListingsError(true);
+      alert("Failed to load listings: " + error.message);
     }
   };
 
-  const handleImageSubmit = () => {
+  const handleImageSubmit = async () => {
     if (
       listingFiles.length > 0 &&
       listingFiles.length + listingFormData.imageUrls.length < 7
@@ -243,167 +336,91 @@ export default function Profile() {
       setUploading(true);
       setImageUploadError(false);
 
-      const formData = new FormData();
+      try {
+        const formData = new FormData();
+        for (let i = 0; i < listingFiles.length; i++) {
+          formData.append("images", listingFiles[i]);
+        }
 
-      for (let i = 0; i < listingFiles.length; i++) {
-        formData.append("images", listingFiles[i]);
+        const res = await authFetchFormData(
+          `${API_BASE}/api/listing/upload-images`,
+          formData
+        );
+
+        const data = await res.json();
+        
+        if (data.success === false) {
+          throw new Error(data.message || "Image upload failed");
+        }
+
+        const urls = data.imageUrls || [];
+        setListingFormData(prev => ({
+          ...prev,
+          imageUrls: prev.imageUrls.concat(urls),
+        }));
+        setImageUploadError(false);
+        
+      } catch (error) {
+        console.error('❌ Image upload error:', error);
+        setImageUploadError(error.message);
+      } finally {
+        setUploading(false);
       }
-
-      fetch("/api/listing/upload-images", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success === false) {
-            setImageUploadError(data.message || "Image upload failed");
-            setUploading(false);
-            return;
-          }
-
-          const urls = data.imageUrls || [];
-          setListingFormData({
-            ...listingFormData,
-            imageUrls: listingFormData.imageUrls.concat(urls),
-          });
-          setImageUploadError(false);
-          setUploading(false);
-        })
-        .catch(() => {
-          setImageUploadError("Image upload failed (2 mb max per image)");
-          setUploading(false);
-        });
     } else {
       setImageUploadError("You can only upload 6 images per listing");
       setUploading(false);
     }
   };
 
-  // const storeImage = async (file) => {
-  //   return new Promise((resolve, reject) => {
-  //     const storage = getStorage(app);
-  //     const fileName = new Date().getTime() + file.name;
-  //     const storageRef = ref(storage, fileName);
-  //     const uploadTask = uploadBytesResumable(storageRef, file);
-  //     uploadTask.on(
-  //       'state_changed',
-  //       (snapshot) => {
-  //         const progress =
-  //           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //         console.log(`Upload is ${progress}% done`);
-  //       },
-  //       (error) => {
-  //         reject(error);
-  //       },
-  //       () => {
-  //         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-  //           resolve(downloadURL);
-  //         });
-  //       }
-  //     );
-  //   });
-  // };
-
   const handleRemoveImage = (index) => {
-    setListingFormData({
-      ...listingFormData,
-      imageUrls: listingFormData.imageUrls.filter((_, i) => i !== index),
-    });
+    setListingFormData(prev => ({
+      ...prev,
+      imageUrls: prev.imageUrls.filter((_, i) => i !== index),
+    }));
   };
 
-  // const handleListingChange = (e) => {
-  //   if (e.target.id === "sale" || e.target.id === "rent") {
-  //     setListingFormData({
-  //       ...listingFormData,
-  //       type: e.target.id,
-  //     });
-  //   }
-
-  //   if (
-  //     e.target.id === "parking" ||
-  //     e.target.id === "furnished" ||
-  //     e.target.id === "offer"
-  //   ) {
-  //     setListingFormData({
-  //       ...listingFormData,
-  //       [e.target.id]: e.target.checked,
-  //     });
-  //   }
-
-  //   if (
-  //     e.target.type === "number" ||
-  //     e.target.type === "text" ||
-  //     e.target.type === "textarea"
-  //   ) {
-  //     setListingFormData({
-  //       ...listingFormData,
-  //       [e.target.id]: e.target.value,
-  //     });
-  //   }
-  // };
   const handleListingChange = (e) => {
     const { id, type, value, checked, name } = e.target;
 
-    // Handle radio buttons for sale/rent
     if (name === "type" && (value === "sale" || value === "rent")) {
-      setListingFormData({
-        ...listingFormData,
-        type: value, // Use value instead of id
-      });
+      setListingFormData(prev => ({ ...prev, type: value }));
     }
-
-    // Handle checkboxes
     else if (id === "parking" || id === "furnished" || id === "offer") {
-      setListingFormData({
-        ...listingFormData,
-        [id]: checked,
-      });
+      setListingFormData(prev => ({ ...prev, [id]: checked }));
     }
-
-    // Handle number, text, textarea inputs
     else if (
       type === "number" ||
       type === "text" ||
       type === "textarea" ||
-      type === "select-one" // Add this for select inputs
+      type === "select-one" ||
+      e.target.tagName === "SELECT"
     ) {
-      setListingFormData({
-        ...listingFormData,
-        [id]: value,
-      });
-    }
-
-    // Handle select dropdowns specifically
-    else if (e.target.tagName === "SELECT") {
-      setListingFormData({
-        ...listingFormData,
-        [id]: value,
-      });
+      setListingFormData(prev => ({ ...prev, [id]: value }));
     }
   };
+
   const handleListingSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (listingFormData.imageUrls.length < 1)
+      // Validation
+      if (listingFormData.imageUrls.length < 1) {
         return setListingError("You must upload at least one image");
-      if (+listingFormData.regularPrice < +listingFormData.discountPrice)
-        return setListingError(
-          "Discount price must be lower than regular price"
-        );
+      }
+      if (+listingFormData.regularPrice < +listingFormData.discountPrice) {
+        return setListingError("Discount price must be lower than regular price");
+      }
 
       setListingLoading(true);
       setListingError(false);
 
       const url = editingListing
-        ? `/api/listing/update/${editingListing}`
-        : "/api/listing/create";
-      const method = editingListing ? "POST" : "POST";
+        ? `${API_BASE}/api/listing/update/${editingListing}`
+        : `${API_BASE}/api/listing/create`;
+      
+      const method = "POST"; // Both create and update use POST
 
-      const res = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const res = await authFetch(url, {
+        method,
         body: JSON.stringify({
           ...listingFormData,
           userRef: currentUser._id,
@@ -415,18 +432,22 @@ export default function Profile() {
 
       if (data.success === false) {
         setListingError(data.message);
+        alert("Error: " + data.message);
       } else {
         if (editingListing) {
           handleShowListings();
           setEditingListing(null);
           setActiveTab("listings");
+          alert("✅ Listing updated successfully!");
         } else {
           navigate(`/listing/${data._id}`);
         }
       }
     } catch (error) {
+      console.error('❌ Listing submit error:', error);
       setListingError(error.message);
       setListingLoading(false);
+      alert("Failed to save listing: " + error.message);
     }
   };
 
@@ -464,6 +485,7 @@ export default function Profile() {
     });
     setActiveTab("create-listing");
   };
+
 
   return (
     <div className="max-w-6xl px-6 mx-auto py-8 flex md:flex-row flex-col gap-4">

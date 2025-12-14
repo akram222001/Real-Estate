@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
+import { API_BASE } from '../../config';
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -36,7 +37,7 @@ export default function SignUp() {
       bodyData.append("password", formData.password);
       bodyData.append("avatar", file);
 
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: 'POST',
         body: bodyData,
       });

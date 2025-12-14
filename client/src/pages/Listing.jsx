@@ -168,6 +168,7 @@ import {
   FaShare,
 } from "react-icons/fa";
 import Contact from "../components/Contact";
+import { API_BASE } from "../../config";
 
 export default function Listing() {
   SwiperCore.use([Navigation]);
@@ -184,7 +185,7 @@ export default function Listing() {
     const fetchListing = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/listing/get/${params.listingId}`);
+        const res = await fetch(`${API_BASE}/api/listing/get/${params.listingId}`);
         const data = await res.json();
         if (data.success === false) {
           setError(true);

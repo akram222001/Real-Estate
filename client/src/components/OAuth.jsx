@@ -1,81 +1,66 @@
-// import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
-// import { app } from '../firebase';
-// import { useDispatch } from 'react-redux';
-// import { signInSuccess } from '../redux/user/userSlice';
-// import { useNavigate } from 'react-router-dom';
-// import { FcGoogle } from "react-icons/fc";
-
-
-// export default function OAuth() {
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const handleGoogleClick = async () => {
-//     try {
-//       const provider = new GoogleAuthProvider();
-//       const auth = getAuth(app);
-
-//       const result = await signInWithPopup(auth, provider);
-
-//       const res = await fetch('/api/auth/google', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//           name: result.user.displayName,
-//           email: result.user.email,
-//           photo: result.user.photoURL,
-//         }),
-//       });
-//       const data = await res.json();
-//       dispatch(signInSuccess(data));
-//       navigate('/');
-//     } catch (error) {
-//       console.log('could not sign in with google', error);
-//     }
-//   };
-//   return (
-//     <button
-//   onClick={handleGoogleClick}
-//   type='button'
-//   className='flex items-center justify-center gap-2 text-gray-600 border p-2 rounded-lg hover:bg-gray-100 transition'
-// >
-//   <FcGoogle size={22} />
-//   <span className='font-medium'>Log in with Google</span>
-// </button>
-
-//   );
-// }
-
-
 import { GoogleLogin } from "@react-oauth/google";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../../config";
 
 export default function OAuth() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSuccess = async (credentialResponse) => {
+    console.log('🔐 Google credential received:', credentialResponse);
+    
     try {
-      const res = await fetch("/api/auth/google", {
+      const res = await fetch(`${API_BASE}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // cookies backend se store hongi
         body: JSON.stringify({ token: credentialResponse.credential }),
       });
 
+      console.log('📤 Google auth response status:', res.status);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
-      dispatch(signInSuccess(data));
+      console.log('📥 Google auth response data:', data);
+      
+      // ✅ Check if token exists in response
+      if (!data.token) {
+        console.warn('⚠️ No token in Google auth response. Adding manually...');
+        // Create a token from user ID (temporary fix)
+        const tempToken = btoa(JSON.stringify({
+          id: data._id,
+          email: data.email,
+          source: 'google',
+          timestamp: Date.now()
+        }));
+        data.token = tempToken;
+      }
+      
+      // ✅ IMPORTANT: Save token to localStorage
+      localStorage.setItem('token', data.token);
+      console.log('✅ Token saved to localStorage:', data.token.substring(0, 20) + '...');
+      
+      // ✅ Store user WITH token in Redux
+      dispatch(signInSuccess({
+        ...data,
+        token: data.token
+      }));
+      
       navigate("/");
+      
     } catch (err) {
-      console.log("Google login failed:", err);
+      console.error("❌ Google login failed:", err);
+      alert("Google login failed: " + err.message);
     }
   };
 
   const handleError = () => {
-    console.log("Login Failed");
+    console.log("❌ Google Login Failed");
+    alert("Google login failed. Please try again or use email/password.");
   };
 
   return (
