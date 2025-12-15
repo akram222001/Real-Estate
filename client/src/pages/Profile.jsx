@@ -154,7 +154,7 @@ export default function Profile() {
   const [listingError, setListingError] = useState(false);
   const [listingLoading, setListingLoading] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
-
+  const [selectedPreviews, setSelectedPreviews] = useState([]);
 
   useEffect(() => {
     if (file) {
@@ -497,6 +497,22 @@ export default function Profile() {
       type: "rent",
     });
     setActiveTab("create-listing");
+  };
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+
+    if (files.length > 6) {
+      setImageUploadError("You can upload maximum 6 images");
+      return;
+    }
+
+    setListingFiles(files);
+    setImageUploadError(false);
+
+    // local preview
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setSelectedPreviews(previews);
   };
 
   return (
@@ -1196,20 +1212,65 @@ export default function Profile() {
                         <p className="text-sm text-gray-500 mb-4">
                           Upload up to 6 images. First image will be cover.
                         </p>
+                        {selectedPreviews.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-3">
+                              Selected Images
+                            </p>
+                            <div className="space-y-3 my-4">
+                              {selectedPreviews.map((src, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center gap-4 p-2 border border-gray-200 rounded-lg"
+                                >
+                                  {/* Left: Image */}
+                                  <img
+                                    src={src}
+                                    alt={`Preview ${index + 1}`}
+                                    className="w-12 h-12 object-cover rounded-md"
+                                  />
+
+                                  {/* Right: Image Name */}
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-800 truncate">
+                                      {listingFiles[index]?.name ||
+                                        `Image ${index + 1}`}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {(
+                                        listingFiles[index]?.size / 1024
+                                      ).toFixed(1)}{" "}
+                                      KB
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="flex gap-4 justify-center">
                           <label htmlFor="images" className="cursor-pointer">
                             <div className="md:px-6 px-2 md:py-2 py-1 sm:text-sm bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors duration-200">
                               Browse Files
                             </div>
-                            <input
+                            {/* <input
                               onChange={(e) => setListingFiles(e.target.files)}
                               className="hidden"
                               type="file"
                               id="images"
                               accept="image/*"
                               multiple
+                            /> */}
+                            <input
+                              type="file"
+                              id="images"
+                              accept="image/*"
+                              multiple
+                              className="hidden"
+                              onChange={handleImageSelect}
                             />
                           </label>
+
                           <button
                             type="button"
                             disabled={uploading || !listingFiles}

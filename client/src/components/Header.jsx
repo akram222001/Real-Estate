@@ -2,6 +2,7 @@ import { FaSearch, FaUser, FaHome, FaInfoCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { IoIosArrowForward } from "react-icons/io";
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
@@ -235,6 +236,42 @@ export default function Header() {
                 </Link>
 
                 <Link
+                  to={currentUser ? "/profile" : "/sign-in"}
+                  onClick={closeMobileMenu}
+                  className="mt-8 flex items-center justify-between p-3 rounded-lg
+             bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+                >
+                  {currentUser ? (
+                    <>
+                      {/* LEFT: Avatar + Name */}
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <img
+                          src={currentUser.avatar}
+                          alt="Profile"
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                        <p className="text-sm font-medium truncate">
+                          {currentUser.username}
+                        </p>
+                      </div>
+
+                      {/* RIGHT: View text */}
+                      <span className="text-sm font-medium opacity-90">
+                        <IoIosArrowForward />
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {/* LEFT: Sign In icon + text */}
+                      <div className="flex items-center space-x-3">
+                        <FaUser className="h-5 w-5" />
+                        <span className="font-medium">Sign In</span>
+                      </div>
+                    </>
+                  )}
+                </Link>
+
+                {/* <Link
                   to="/profile"
                   className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium mt-8"
                   onClick={closeMobileMenu}
@@ -253,7 +290,7 @@ export default function Header() {
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
-                          {currentUser.name}
+                          {currentUser.username}
                         </p>
                         <p className="text-sm text-gray-500 truncate">
                           {currentUser.email}
@@ -261,7 +298,7 @@ export default function Header() {
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
