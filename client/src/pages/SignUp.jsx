@@ -81,7 +81,13 @@ export default function SignUp() {
 
   return (
     <div className="p-5 max-w-sm md:mx-auto mx-6 bg-white m-10 shadow-md ">
-      <Toaster position="top-center" />
+       <Toaster
+        position="top-center"
+        containerStyle={{
+          top: "50%",
+          transform: "translateY(-50%)",
+        }}
+      />
       <h1 className="text-2xl text-center font-semibold mb-4">Sign Up</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div className="flex flex-col items-center mb-1">

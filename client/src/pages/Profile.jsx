@@ -532,7 +532,13 @@ const handleSignOut = async () => {
 
   return (
     <div className="max-w-6xl md:px-6 px-2 mx-auto py-8 flex md:flex-row flex-col gap-4">
-      <Toaster position="top-center" />
+       <Toaster
+        position="top-center"
+        containerStyle={{
+          top: "50%",
+          transform: "translateY(-50%)",
+        }}
+      />
       <aside className="md:w-64 bg-white shadow-lg rounded-xl p-6 h-max top-10">
         <div className="text-center mb-6">
           <img
