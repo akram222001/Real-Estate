@@ -520,7 +520,10 @@ export default function Profile() {
       <aside className="md:w-64 bg-white shadow-lg rounded-xl p-6 h-max top-10">
         <div className="text-center mb-6">
           <img
-            src={currentUser.avatar}
+            src={
+              currentUser.avatar ||
+              "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+            }
             alt="avatar"
             className="h-20 w-20 mx-auto rounded-full border object-cover"
           />
@@ -587,12 +590,24 @@ export default function Profile() {
                 onChange={(e) => setFile(e.target.files[0])}
               />
 
-              <img
+              <div
+                className="relative group w-24 h-24 md:w-24 md:h-24"
                 onClick={() => fileRef.current.click()}
-                src={formData.avatar || currentUser.avatar}
-                className="md:h-24 md:w-24 h-20 w-20 rounded-full cursor-pointer object-cover"
-                alt="profile"
-              />
+              >
+                <img
+                  onClick={() => fileRef.current.click()}
+                  src={
+                    formData.avatar ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  }
+                  className="md:h-24 md:w-24 h-20 w-20 rounded-full cursor-pointer object-cover"
+                  alt="profile"
+                />
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <span className="text-white text-xl">📤</span>
+                </div>
+              </div>
 
               <p className="text-sm">
                 {filePerc > 0 && filePerc < 100 && (
@@ -673,7 +688,8 @@ export default function Profile() {
                     className="flex items-center gap-4"
                   >
                     <img
-                      src={list.imageUrls[0]}
+                      src={list.imageUrls[0] ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png" }
                       className="h-16 w-16 object-cover rounded"
                     />
                     <p className="font-semibold text-gray-700 truncate">

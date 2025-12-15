@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import { API_BASE } from "../../config";
+import toast from "react-hot-toast";
+
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -26,7 +28,11 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    if (!file) return setError("Please upload a profile image");
+    // if (!file) return setError("Please upload a profile image");
+    if (!formData.username || !formData.email || !formData.password) {
+    toast.error("Please fill all required fields");
+    return;
+  }
     try {
       setLoading(true);
 
@@ -84,6 +90,7 @@ export default function SignUp() {
           className="border p-2 rounded-lg"
           id="username"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
@@ -91,6 +98,7 @@ export default function SignUp() {
           className="border p-2 rounded-lg"
           id="email"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
@@ -98,6 +106,7 @@ export default function SignUp() {
           className="border p-2 rounded-lg"
           id="password"
           onChange={handleChange}
+          required
         />
 
         <button

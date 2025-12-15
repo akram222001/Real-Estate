@@ -120,7 +120,7 @@ export default function Header() {
                   <>
                     <img
                       className="rounded-full h-8 w-8 object-cover border-2 border-white"
-                      src={currentUser.avatar}
+                      src={currentUser.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png" }
                       alt="Profile"
                     />
                     <div className="text-left">
@@ -246,7 +246,7 @@ export default function Header() {
                       {/* LEFT: Avatar + Name */}
                       <div className="flex items-center space-x-3 min-w-0">
                         <img
-                          src={currentUser.avatar}
+                          src={currentUser.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                           alt="Profile"
                           className="h-10 w-10 rounded-full object-cover"
                         />
