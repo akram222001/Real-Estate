@@ -157,6 +157,7 @@ import ListingItem from "../components/ListingItem";
 import { useOutletContext } from "react-router-dom";
 import { API_BASE } from "../../config";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import CountUp from "react-countup";
 
 export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
@@ -173,6 +174,13 @@ export default function Home() {
       { title: "🏘️ Properties for Sale", link: "/search?type=sale" },
     ]);
   }, []);
+
+  const statsData = [
+  { end: 10000, label: "Properties", suffix: "+" },
+  { end: 5000, label: "Happy Clients", suffix: "+" },
+  { end: 100, label: "Cities", suffix: "+" },
+];
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -219,8 +227,8 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16 bg-gradient-to-r from-[#F7EFFB] via-[#E4F2FF] to-[#E8FFF5] text-slate-800">
-        <div className="grid grid-cols-1 lg:grid-cols-2 items-center md:gap-0 gap-8">
+      <section className="max-w-7xl mx-auto px-4 lg:px-8 md:py-10 py-20 bg-gradient-to-r from-[#F7EFFB] via-[#E4F2FF] to-[#E8FFF5] text-slate-800">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-center md:gap-0 gap-10">
           {/* LEFT TEXT SECTION */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl font-extrabold text-slate-800 leading-tight">
@@ -228,16 +236,49 @@ export default function Home() {
             </h1>
 
             <p className="text-gray-500 mt-5 text-sm md:text-base max-w-md mx-auto lg:mx-0">
-              Browse premium homes, apartments and exclusive listings from
-              verified property owners.
+              Browse premium homes, modern apartments, and exclusive properties
+              sourced directly from trusted and verified owners. Discover spaces
+              designed for comfort, lifestyle, and long-term value — all in one
+              place.
             </p>
 
+            {/* PRIMARY CTA */}
             <Link
               to="/search"
-              className="inline-block mt-7 px-7 py-3 bg-slate-800 text-white rounded-xl font-medium shadow-md hover:bg-slate-700 transition"
+              className="inline-block mt-7 px-8 py-3 bg-slate-800 text-white rounded-xl font-medium shadow-md hover:bg-slate-700 transition"
             >
               Start Exploring
             </Link>
+
+            {/* TRUST HIGHLIGHTS */}
+            <div className="mt-5 flex flex-wrap justify-center lg:justify-start gap-3 text-sm text-gray-600">
+              <span className="bg-white/70 px-3 py-1.5 rounded-full shadow-sm">
+                🛡️ Verified Listings
+              </span>
+              <span className="bg-white/70 px-3 py-1.5 rounded-full shadow-sm">
+                📍 Prime Locations
+              </span>
+              <span className="bg-white/70 px-3 py-1.5 rounded-full shadow-sm">
+                💬 Zero Brokerage
+              </span>
+            </div>
+
+            {/* QUICK STATS */}
+           <div className="mt-7 grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
+  {statsData.map((stat, index) => (
+    <div key={index}>
+      <p className="text-2xl font-bold text-slate-800">
+        <CountUp
+          end={stat.end}
+          duration={2}
+          separator=","
+        />
+        {stat.suffix}
+      </p>
+      <p className="text-xs text-gray-500">{stat.label}</p>
+    </div>
+  ))}
+</div>
           </div>
 
           {/* RIGHT IMAGE SLIDER  Desktop view */}
@@ -286,7 +327,7 @@ export default function Home() {
                   }}
                   breakpoints={{
                     0: {
-                      slidesPerView: 1.60, // 👈 mobile preview
+                      slidesPerView: 1.6, // 👈 mobile preview
                       spaceBetween: 12,
                     },
                     480: {
