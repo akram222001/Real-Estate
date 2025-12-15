@@ -13,6 +13,7 @@ import {
 import { RiDeleteBin3Fill } from "react-icons/ri";
 import { FaEdit } from "react-icons/fa";
 import { API_BASE } from "../../config";
+import toast, { Toaster } from "react-hot-toast";
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -271,23 +272,37 @@ export default function Profile() {
     }
   };
 
-  const handleSignOut = async () => {
-    dispatch(signOutUserStart());
+const handleSignOut = async () => {
+  dispatch(signOutUserStart());
 
-    try {
-      const token = getAuthToken();
-      if (token) {
-        await fetch(`${API_BASE}/api/auth/signout`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
-    } catch (error) {
-      console.log("Signout error:", error);
+  try {
+    const token = getAuthToken();
+
+    if (token) {
+      await fetch(`${API_BASE}/api/auth/signout`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
     }
 
-    dispatch(deleteUserSuccess());
+    // ✅ SUCCESS TOAST
+    toast.success("Logged out successfully 👋");
+
+  } catch (error) {
+    console.log("Signout error:", error);
+
+    // ❌ ERROR TOAST
+    toast.error("Logout failed. Please try again.");
+  }
+
+  dispatch(deleteUserSuccess());
+
+  setTimeout(() => {
     navigate("/");
-  };
+  }, 1000);
+};
+
 
   // ==================== LISTING FUNCTIONS ====================
 
@@ -517,6 +532,7 @@ export default function Profile() {
 
   return (
     <div className="max-w-6xl md:px-6 px-2 mx-auto py-8 flex md:flex-row flex-col gap-4">
+      <Toaster position="top-center" />
       <aside className="md:w-64 bg-white shadow-lg rounded-xl p-6 h-max top-10">
         <div className="text-center mb-6">
           <img

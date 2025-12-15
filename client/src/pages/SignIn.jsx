@@ -8,10 +8,11 @@ import {
 } from "../redux/user/userSlice";
 import OAuth from "../components/OAuth";
 import { API_BASE } from "../../config";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const { loading, error } = useSelector((state) => state.user);
+  const { loading } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleChange = (e) => {
@@ -22,8 +23,10 @@ export default function SignIn() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       dispatch(signInStart());
+
       const res = await fetch(`${API_BASE}/api/auth/signin`, {
         method: "POST",
         headers: {
@@ -31,20 +34,35 @@ export default function SignIn() {
         },
         body: JSON.stringify(formData),
       });
+
       const data = await res.json();
-      console.log(data);
+
+      // ❌ FAIL CASE
       if (data.success === false) {
         dispatch(signInFailure(data.message));
+
+        // toast error
+        toast.error(data.message || "Login failed");
+
         return;
       }
+
+      // ✅ SUCCESS CASE
       dispatch(signInSuccess(data));
-      navigate("/");
+      toast.success("Login successful 🎉");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (error) {
       dispatch(signInFailure(error.message));
+      toast.error("Something went wrong");
     }
   };
+
   return (
     <div className="p-5 max-w-sm md:mx-auto mx-6 bg-white m-10 shadow-md">
+      <Toaster position="top-center" />
       <h1 className="text-3xl text-center font-semibold my-6">Sign In</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
@@ -81,7 +99,6 @@ export default function SignIn() {
         </div>
         <OAuth />
       </form>
-      {error && <p className="text-red-500 mt-5">{error}</p>}
     </div>
   );
 }

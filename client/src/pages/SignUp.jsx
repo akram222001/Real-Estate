@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import { API_BASE } from "../../config";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+
 
 
 export default function SignUp() {
@@ -26,42 +27,61 @@ export default function SignUp() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    // if (!file) return setError("Please upload a profile image");
-    if (!formData.username || !formData.email || !formData.password) {
+  e.preventDefault();
+  setError(null);
+
+  if (!formData.username || !formData.email || !formData.password) {
     toast.error("Please fill all required fields");
     return;
   }
-    try {
-      setLoading(true);
 
-      const bodyData = new FormData();
-      bodyData.append("username", formData.username);
-      bodyData.append("email", formData.email);
-      bodyData.append("password", formData.password);
+  try {
+    setLoading(true);
+
+    const bodyData = new FormData();
+    bodyData.append("username", formData.username);
+    bodyData.append("email", formData.email);
+    bodyData.append("password", formData.password);
+
+    if (file) {
       bodyData.append("avatar", file);
-
-      const res = await fetch(`${API_BASE}/api/auth/signup`, {
-        method: "POST",
-        body: bodyData,
-      });
-      const data = await res.json();
-      if (data.success === false) {
-        setLoading(false);
-        setError(data.message);
-        return;
-      }
-      setLoading(false);
-      setError(null);
-      navigate("/sign-in");
-    } catch (error) {
-      setLoading(false);
-      setError(error.message);
     }
-  };
+
+    const res = await fetch(`${API_BASE}/api/auth/signup`, {
+      method: "POST",
+      body: bodyData,
+    });
+
+    const data = await res.json();
+
+    // ❌ FAIL CASE
+    if (data.success === false) {
+      setLoading(false);
+      setError(data.message);
+      toast.error(data.message);
+      return;
+    }
+
+    // ✅ SUCCESS CASE
+    setLoading(false);
+    setError(null);
+
+    toast.success("Account created successfully 🎉");
+
+    setTimeout(() => {
+      navigate("/sign-in");
+    }, 1500);
+
+  } catch (error) {
+    setLoading(false);
+    setError(error.message);
+    toast.error("Something went wrong");
+  }
+};
+
   return (
     <div className="p-5 max-w-sm md:mx-auto mx-6 bg-white m-10 shadow-md ">
+      <Toaster position="top-center" />
       <h1 className="text-2xl text-center font-semibold mb-4">Sign Up</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div className="flex flex-col items-center mb-1">
