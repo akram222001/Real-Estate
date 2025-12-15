@@ -164,6 +164,8 @@ export default function Home() {
   const [rentListings, setRentListings] = useState([]);
   const { setFooterData } = useOutletContext();
 
+  const hasOffers = offerListings?.length > 0;
+
   useEffect(() => {
     setFooterData([
       { title: "🔥 Hot Property Deals", link: "/search?offer=true" },
@@ -196,6 +198,24 @@ export default function Home() {
     fetchData();
   }, []);
 
+  function HeroPlaceholder() {
+    return (
+      <div className="relative h-[220px] md:h-[380px] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+        {/* shimmer animation */}
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+
+        <div className="relative z-10 text-center px-6">
+          <p className="text-slate-700 text-sm uppercase tracking-wide">
+            Premium Properties
+          </p>
+          <h3 className="mt-2 text-xl md:text-3xl font-bold text-slate-800">
+            Homes you’ll love
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* HERO SECTION */}
@@ -220,41 +240,92 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* RIGHT IMAGE SLIDER */}
+          {/* RIGHT IMAGE SLIDER  Desktop view */}
           <div className="relative">
-            <Swiper
-              navigation={{
-                nextEl: ".swiper-next-btn",
-                prevEl: ".swiper-prev-btn",
-              }}
-              loop={true}
-              autoplay={{
-                delay: 3000, // 3 seconds
-                disableOnInteraction: false, // user swipe ke baad bhi autoplay chale
-                pauseOnMouseEnter: true, // hover pe pause (optional)
-              }}
-              pagination={{ clickable: true }}
-              modules={[Navigation, Pagination, Autoplay]}
-              className="rounded-2xl overflow-hidden shadow-lg w-full"
-            >
-              {offerListings.map((listing) => (
-                <SwiperSlide key={listing._id}>
-                  <img
-                    src={listing.imageUrls[0]}
-                    className="h-[200px] md:h-[380px] w-full object-cover"
-                    alt="listing"
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-            {/* Navigation Buttons */}
-            <div className="swiper-prev-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
-              <FaChevronLeft className="text-gray-800 w-2 h-2 sm:w-4 sm:h-4 md:w-4 md:h-4" />
-            </div>
+            {hasOffers ? (
+              <>
+                <Swiper
+                  navigation={{
+                    nextEl: ".swiper-next-btn",
+                    prevEl: ".swiper-prev-btn",
+                  }}
+                  loop
+                  autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false,
+                  }}
+                  pagination={{ clickable: true }}
+                  modules={[Navigation, Pagination, Autoplay]}
+                  className="rounded-2xl overflow-hidden shadow-lg w-full hidden md:block"
+                >
+                  {offerListings.map((listing) => (
+                    <SwiperSlide key={listing._id}>
+                      <img
+                        src={listing.imageUrls?.[0]}
+                        className="h-[220px] sm:h-[260px] md:h-[380px] w-full object-cover"
+                        alt="listing"
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
 
-            <div className="swiper-next-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-white/90 backdrop-blur-sm w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200">
-              <FaChevronRight className="text-gray-800 w-2 h-2 sm:w-5 sm:h-5 md:w-4 md:h-4" />
-            </div>
+                {/* Mobile view */}
+                <Swiper
+                  loop
+                  centeredSlides
+                  grabCursor
+                  autoplay={{
+                    delay: 0, // continuous
+                    disableOnInteraction: false,
+                  }}
+                  speed={4000} // smooth motion
+                  pagination={false}
+                  navigation={{
+                    nextEl: ".swiper-next-btn",
+                    prevEl: ".swiper-prev-btn",
+                  }}
+                  breakpoints={{
+                    0: {
+                      slidesPerView: 1.60, // 👈 mobile preview
+                      spaceBetween: 12,
+                    },
+                    480: {
+                      slidesPerView: 1.4,
+                      spaceBetween: 14,
+                    },
+                    768: {
+                      slidesPerView: 1, // 👈 tablet & up normal
+                      spaceBetween: 0,
+                    },
+                  }}
+                  modules={[Autoplay, Navigation]}
+                  className="overflow-hidden w-full md:hidden block"
+                >
+                  {offerListings.map((listing) => (
+                    <SwiperSlide key={listing._id}>
+                      <div className="overflow-hidden">
+                        <img
+                          src={listing.imageUrls?.[0]}
+                          className="h-[150px] sm:h-[260px] w-full object-cover"
+                          alt="listing"
+                        />
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+
+                {/* NAVIGATION (hide on mobile) */}
+                <div className="hidden md:flex swiper-prev-btn absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 w-10 h-10 rounded-full items-center justify-center shadow">
+                  <FaChevronLeft className="text-gray-800" />
+                </div>
+
+                <div className="hidden md:flex swiper-next-btn absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 w-10 h-10 rounded-full items-center justify-center shadow">
+                  <FaChevronRight className="text-gray-800" />
+                </div>
+              </>
+            ) : (
+              <HeroPlaceholder />
+            )}
           </div>
         </div>
       </section>
