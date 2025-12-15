@@ -595,12 +595,12 @@ export default function Profile() {
                 onClick={() => fileRef.current.click()}
               >
                 <img
-                  onClick={() => fileRef.current.click()}
+                  // onClick={() => fileRef.current.click()}
                   src={
                     formData.avatar ||
                     "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                   }
-                  className="md:h-24 md:w-24 h-20 w-20 rounded-full cursor-pointer object-cover"
+                  className="md:h-24 md:w-24 h-24 w-24 rounded-full cursor-pointer object-cover"
                   alt="profile"
                 />
                 {/* Hover Overlay */}
