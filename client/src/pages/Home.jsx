@@ -176,11 +176,10 @@ export default function Home() {
   }, []);
 
   const statsData = [
-  { end: 10000, label: "Properties", suffix: "+" },
-  { end: 5000, label: "Happy Clients", suffix: "+" },
-  { end: 100, label: "Cities", suffix: "+" },
-];
-
+    { end: 10000, label: "Properties", suffix: "+" },
+    { end: 5000, label: "Happy Clients", suffix: "+" },
+    { end: 100, label: "Cities", suffix: "+" },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -227,7 +226,7 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-4 lg:px-8 md:py-10 py-20 bg-gradient-to-r from-[#F7EFFB] via-[#E4F2FF] to-[#E8FFF5] text-slate-800">
+      <section className="max-w-7xl mx-auto px-4 lg:px-8 py-10 bg-gradient-to-r from-[#F7EFFB] via-[#E4F2FF] to-[#E8FFF5] text-slate-800">
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center md:gap-0 gap-10">
           {/* LEFT TEXT SECTION */}
           <div className="text-center lg:text-left">
@@ -264,21 +263,17 @@ export default function Home() {
             </div>
 
             {/* QUICK STATS */}
-           <div className="mt-7 grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
-  {statsData.map((stat, index) => (
-    <div key={index}>
-      <p className="text-2xl font-bold text-slate-800">
-        <CountUp
-          end={stat.end}
-          duration={2}
-          separator=","
-        />
-        {stat.suffix}
-      </p>
-      <p className="text-xs text-gray-500">{stat.label}</p>
-    </div>
-  ))}
-</div>
+            <div className="mt-7 grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
+              {statsData.map((stat, index) => (
+                <div key={index}>
+                  <p className="text-2xl font-bold text-slate-800">
+                    <CountUp end={stat.end} duration={2} separator="," />
+                    {stat.suffix}
+                  </p>
+                  <p className="text-xs text-gray-500">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* RIGHT IMAGE SLIDER  Desktop view */}
