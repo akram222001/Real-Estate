@@ -5,4 +5,7 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Environment variables (Netlify dashboard se set karein)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
