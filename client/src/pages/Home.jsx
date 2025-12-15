@@ -235,7 +235,8 @@ export default function Home() {
             </h1>
 
             <p className="text-gray-500 mt-5 text-sm md:text-base max-w-md mx-auto lg:mx-0">
-              Browse premium homes, apartments and exclusive listings from verified property owners.
+              Browse premium homes, apartments and exclusive listings from
+              verified property owners.
             </p>
 
             {/* PRIMARY CTA */}
@@ -246,8 +247,9 @@ export default function Home() {
               Start Exploring
             </Link>
 
-            {/* TRUST HIGHLIGHTS */}
-            <div className="mt-5 flex flex-wrap justify-center lg:justify-start gap-3 text-sm text-gray-600">
+          <div className="space-y-7 mt-7">
+              {/* TRUST HIGHLIGHTS */}
+            <div className="flex flex-wrap justify-center lg:justify-start gap-3 text-sm text-gray-600">
               <span className="bg-white/70 px-3 py-1.5 rounded-full shadow-sm">
                 🛡️ Verified Listings
               </span>
@@ -259,8 +261,55 @@ export default function Home() {
               </span>
             </div>
 
+            {/* Mobile view */}
+            <div>
+              <Swiper
+                loop
+                centeredSlides
+                grabCursor
+                autoplay={{
+                  delay: 0, // continuous
+                  disableOnInteraction: false,
+                }}
+                speed={4000} // smooth motion
+                pagination={false}
+                navigation={{
+                  nextEl: ".swiper-next-btn",
+                  prevEl: ".swiper-prev-btn",
+                }}
+                breakpoints={{
+                  0: {
+                    slidesPerView: 1.6, // 👈 mobile preview
+                    spaceBetween: 12,
+                  },
+                  480: {
+                    slidesPerView: 1.4,
+                    spaceBetween: 14,
+                  },
+                  768: {
+                    slidesPerView: 1, // 👈 tablet & up normal
+                    spaceBetween: 0,
+                  },
+                }}
+                modules={[Autoplay, Navigation]}
+                className="overflow-hidden w-full md:hidden block"
+              >
+                {offerListings.map((listing) => (
+                  <SwiperSlide key={listing._id}>
+                    <div className="overflow-hidden">
+                      <img
+                        src={listing.imageUrls?.[0]}
+                        className="h-[150px] sm:h-[260px] w-full object-cover"
+                        alt="listing"
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+
             {/* QUICK STATS */}
-            <div className="mt-7 grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
+            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
               {statsData.map((stat, index) => (
                 <div key={index}>
                   <p className="text-2xl font-bold text-slate-800">
@@ -271,6 +320,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
           </div>
 
           {/* RIGHT IMAGE SLIDER  Desktop view */}
@@ -298,51 +348,6 @@ export default function Home() {
                         className="h-[220px] sm:h-[260px] md:h-[380px] w-full object-cover"
                         alt="listing"
                       />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-
-                {/* Mobile view */}
-                <Swiper
-                  loop
-                  centeredSlides
-                  grabCursor
-                  autoplay={{
-                    delay: 0, // continuous
-                    disableOnInteraction: false,
-                  }}
-                  speed={4000} // smooth motion
-                  pagination={false}
-                  navigation={{
-                    nextEl: ".swiper-next-btn",
-                    prevEl: ".swiper-prev-btn",
-                  }}
-                  breakpoints={{
-                    0: {
-                      slidesPerView: 1.6, // 👈 mobile preview
-                      spaceBetween: 12,
-                    },
-                    480: {
-                      slidesPerView: 1.4,
-                      spaceBetween: 14,
-                    },
-                    768: {
-                      slidesPerView: 1, // 👈 tablet & up normal
-                      spaceBetween: 0,
-                    },
-                  }}
-                  modules={[Autoplay, Navigation]}
-                  className="overflow-hidden w-full md:hidden block"
-                >
-                  {offerListings.map((listing) => (
-                    <SwiperSlide key={listing._id}>
-                      <div className="overflow-hidden">
-                        <img
-                          src={listing.imageUrls?.[0]}
-                          className="h-[150px] sm:h-[260px] w-full object-cover"
-                          alt="listing"
-                        />
-                      </div>
                     </SwiperSlide>
                   ))}
                 </Swiper>
