@@ -226,7 +226,7 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-4 lg:px-8 py-10 bg-gradient-to-r from-[#F7EFFB] via-[#E4F2FF] to-[#E8FFF5] text-slate-800">
+      <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16 bg-gradient-to-r from-[#F7EFFB] via-[#E4F2FF] to-[#E8FFF5] text-slate-800">
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center md:gap-0 gap-10">
           {/* LEFT TEXT SECTION */}
           <div className="text-center lg:text-left">
@@ -235,10 +235,7 @@ export default function Home() {
             </h1>
 
             <p className="text-gray-500 mt-5 text-sm md:text-base max-w-md mx-auto lg:mx-0">
-              Browse premium homes, modern apartments, and exclusive properties
-              sourced directly from trusted and verified owners. Discover spaces
-              designed for comfort, lifestyle, and long-term value — all in one
-              place.
+              Browse premium homes, apartments and exclusive listings from verified property owners.
             </p>
 
             {/* PRIMARY CTA */}
