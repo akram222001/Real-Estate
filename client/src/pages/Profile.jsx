@@ -597,8 +597,7 @@ export default function Profile() {
                 <img
                   // onClick={() => fileRef.current.click()}
                   src={
-                    formData.avatar ||
-                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    formData.avatar || currentUser.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                   }
                   className="md:h-24 md:w-24 h-24 w-24 rounded-full cursor-pointer object-cover"
                   alt="profile"
