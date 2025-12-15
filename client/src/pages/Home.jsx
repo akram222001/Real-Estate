@@ -227,7 +227,7 @@ export default function Home() {
     <div className="bg-white">
       {/* HERO SECTION */}
       <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16 bg-gradient-to-r from-[#F7EFFB] via-[#E4F2FF] to-[#E8FFF5] text-slate-800">
-        <div className="grid grid-cols-1 lg:grid-cols-2 items-center md:gap-0 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
           {/* LEFT TEXT SECTION */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl font-extrabold text-slate-800 leading-tight">
