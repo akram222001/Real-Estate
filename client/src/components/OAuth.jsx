@@ -64,11 +64,11 @@ export default function OAuth() {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <GoogleLogin
         onSuccess={handleSuccess}
         onError={handleError}
-        useOneTap
+        width="100%"
       />
     </div>
   );
