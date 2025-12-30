@@ -52,7 +52,7 @@ export default function SignIn() {
       toast.success("Login successful 🎉");
 
       setTimeout(() => {
-        navigate("/");
+        navigate("/profile");
       }, 1000);
     } catch (error) {
       dispatch(signInFailure(error.message));

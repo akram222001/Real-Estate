@@ -164,6 +164,9 @@ export default function Home() {
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
   const { setFooterData } = useOutletContext();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
 
   const hasOffers = offerListings?.length > 0;
 
@@ -183,6 +186,8 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const offer = await fetch(
           `${API_BASE}/api/listing/get?offer=true&limit=4`
@@ -198,9 +203,12 @@ export default function Home() {
           `${API_BASE}/api/listing/get?type=sale&limit=4`
         );
         setSaleListings(await sale.json());
-      } catch (error) {
-        console.log(error);
-      }
+      }  catch (err) {
+      console.error(err);
+      setError("Failed to load listings. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
     };
     fetchData();
   }, []);
@@ -370,7 +378,10 @@ export default function Home() {
 
       {/* LISTING SECTIONS */}
       <section className="max-w-7xl mx-auto px-2 lg:px-6 py-12 md:space-y-16 space-y-8">
-        {offerListings.length > 0 && (
+        {loading && <p className="text-center md:text-2xl text-gray-500">Loading listings...</p>}
+        {error && <p className="text-center text-red-500">{error}</p>}
+        {/* {offerListings.length > 0 && ( */}
+          {!loading && !error && offerListings.length > 0 && (
           <ListingSection
             title="🔥 Hot Property Deals"
             link="/search?offer=true"

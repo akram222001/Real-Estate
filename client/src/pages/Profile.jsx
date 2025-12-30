@@ -120,7 +120,13 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("profile");
   const [file, setFile] = useState(null);
   const [filePerc, setFilePerc] = useState(0);
-  const [formData, setFormData] = useState({});
+  // const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    username: currentUser?.username || "",
+    email: currentUser?.email || "",
+    avatar: currentUser?.avatar || "",
+  });
+
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [showListingsError, setShowListingsError] = useState(false);
   const [userListings, setUserListings] = useState([]);
@@ -162,6 +168,13 @@ export default function Profile() {
       uploadFile(file);
     }
   }, [file]);
+  useEffect(() => {
+    setFormData({
+      username: currentUser?.username || "",
+      email: currentUser?.email || "",
+      avatar: currentUser?.avatar || "",
+    });
+  }, [currentUser]);
 
   useEffect(() => {
     if (editingListing) {
@@ -272,37 +285,35 @@ export default function Profile() {
     }
   };
 
-const handleSignOut = async () => {
-  dispatch(signOutUserStart());
+  const handleSignOut = async () => {
+    dispatch(signOutUserStart());
 
-  try {
-    const token = getAuthToken();
+    try {
+      const token = getAuthToken();
 
-    if (token) {
-      await fetch(`${API_BASE}/api/auth/signout`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (token) {
+        await fetch(`${API_BASE}/api/auth/signout`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+
+      // ✅ SUCCESS TOAST
+      toast.success("Logged out successfully 👋");
+    } catch (error) {
+      console.log("Signout error:", error);
+
+      // ❌ ERROR TOAST
+      toast.error("Logout failed. Please try again.");
     }
 
-    // ✅ SUCCESS TOAST
-    toast.success("Logged out successfully 👋");
+    dispatch(deleteUserSuccess());
 
-  } catch (error) {
-    console.log("Signout error:", error);
-
-    // ❌ ERROR TOAST
-    toast.error("Logout failed. Please try again.");
-  }
-
-  dispatch(deleteUserSuccess());
-
-  setTimeout(() => {
-    navigate("/");
-  }, 1000);
-};
-
+    setTimeout(() => {
+      navigate("/");
+    }, 1000);
+  };
 
   // ==================== LISTING FUNCTIONS ====================
 
@@ -532,7 +543,7 @@ const handleSignOut = async () => {
 
   return (
     <div className="max-w-6xl md:px-6 px-2 mx-auto py-8 flex md:flex-row flex-col gap-4">
-       <Toaster
+      <Toaster
         position="top-center"
         containerStyle={{
           top: "50%",
@@ -619,7 +630,9 @@ const handleSignOut = async () => {
                 <img
                   // onClick={() => fileRef.current.click()}
                   src={
-                    formData.avatar || currentUser.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    formData.avatar ||
+                    currentUser.avatar ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                   }
                   className="md:h-24 md:w-24 h-24 w-24 rounded-full cursor-pointer object-cover"
                   alt="profile"
@@ -642,7 +655,8 @@ const handleSignOut = async () => {
               <input
                 id="username"
                 type="text"
-                defaultValue={currentUser.username}
+                // defaultValue={currentUser.username}
+                value={formData.username || currentUser.username || ""}
                 onChange={handleChange}
                 className="border p-2 rounded-lg"
               />
@@ -709,8 +723,10 @@ const handleSignOut = async () => {
                     className="flex items-center gap-4"
                   >
                     <img
-                      src={list.imageUrls[0] ||
-                    "https://cdn-icons-png.flaticon.com/512/149/149071.png" }
+                      src={
+                        list.imageUrls[0] ||
+                        "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                      }
                       className="h-16 w-16 object-cover rounded"
                     />
                     <p className="font-semibold text-gray-700 truncate">
