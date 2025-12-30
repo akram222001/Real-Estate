@@ -57,7 +57,7 @@ export default function OAuth() {
         })
       );
 
-      navigate("/");
+      navigate("/profile");
     } catch (err) {
       console.error("❌ Google login failed:", err);
       alert("Google login failed: " + err.message);
